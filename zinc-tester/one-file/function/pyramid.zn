@@ -1,0 +1,23 @@
+//! { "cases": [ {
+//!     "case": "default",
+//!     "input": {
+//!         "value": "10"
+//!     },
+//!     "output": "240"
+//! } ] }
+
+fn double(value: i64) -> i64 {
+    value * 2
+}
+
+fn triple(value: i64) -> i64 {
+    value * 3
+}
+
+fn quadruple(value: i64) -> i64 {
+    value * 4
+}
+
+fn main(value: i64) -> i64 {
+    double(triple(quadruple(value)))
+}

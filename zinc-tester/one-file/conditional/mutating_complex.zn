@@ -1,0 +1,33 @@
+//! { "cases": [ {
+//!     "case": "condition_true",
+//!     "input": {
+//!         "witness": { "a": false, "b": "0", "c": "0" },
+//!         "condition": true
+//!     },
+//!     "output": { "a": true, "b": "255", "c": "0xf4240" }
+//! }, {
+//!     "case": "condition_false",
+//!     "input": {
+//!         "witness": { "a": false, "b": "0", "c": "0" },
+//!         "condition": false
+//!     },
+//!     "output": { "a": false, "b": "0", "c": "0x0" }
+//! } ] }
+
+struct Data {
+    a: bool,
+    b: u8,
+    c: field,
+}
+
+fn main(mut witness: Data, condition: bool) -> Data {
+    if condition {
+        witness = Data {
+            a: true,
+            b: 255,
+            c: 1_000_000 as field,
+        };
+    }
+
+    witness
+}

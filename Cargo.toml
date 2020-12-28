@@ -1,0 +1,18 @@
+[workspace]
+members = [
+    # Binaries
+    "zinc-compiler",
+    "zinc-tester",
+    "zinc-vm",
+    "zargo",
+    "zandbox",
+
+    # Libraries
+    "zinc-logger",
+    "zinc-const",
+    "zinc-lexical",
+    "zinc-syntax",
+    "zinc-math",
+    "zinc-project",
+    "zinc-types",
+]

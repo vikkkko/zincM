@@ -1,0 +1,8 @@
+[package]
+name = "zinc-const"
+version = "0.2.1"
+authors = [
+    "Alex Zarudnyy <a.zarudnyy@matterlabs.dev>",
+]
+edition = "2018"
+description = "The Zinc constants"

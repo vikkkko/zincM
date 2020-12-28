@@ -1,0 +1,21 @@
+//! { "cases": [ {
+//!     "case": "default",
+//!     "input": {
+//!         "preimage": "42"
+//!     },
+//!     "output": "175682104164695848852753946915843012470109258865306722048589304064831936939"
+//! } ] }
+
+use std::array::pad;
+use std::array::truncate;
+use std::convert;
+use std::crypto::sha256;
+
+fn main(preimage: field) -> u248 {
+    let preimage_bits = convert::to_bits(preimage);
+    let padded_preimage_bits = pad(preimage_bits, 256, false);
+    let digest_bits = sha256(padded_preimage_bits);
+    let truncated_bits = truncate(digest_bits, 248);
+
+    convert::from_bits_unsigned(truncated_bits)
+}

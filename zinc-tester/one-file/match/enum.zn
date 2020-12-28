@@ -1,0 +1,33 @@
+//! { "cases": [ {
+//!     "case": "first",
+//!     "input": {
+//!         "language": "JABBERWOCKY"
+//!     },
+//!     "output": "5"
+//! }, {
+//!     "case": "second",
+//!     "input": {
+//!         "language": "ZINC"
+//!     },
+//!     "output": "10"
+//! }, {
+//!     "case": "third",
+//!     "input": {
+//!         "language": "RUST"
+//!     },
+//!     "output": "15"
+//! } ] }
+
+enum Language {
+    JABBERWOCKY = 0,
+    ZINC = 42,
+    RUST = 255,
+}
+
+fn main(language: Language) -> u8 {
+    match language {
+        Language::JABBERWOCKY => 5,
+        Language::ZINC => 10,
+        Language::RUST => 15,
+    }
+}

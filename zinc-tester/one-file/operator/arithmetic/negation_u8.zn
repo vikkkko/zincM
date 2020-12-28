@@ -1,0 +1,35 @@
+//! { "cases": [ {
+//!     "case": "zero",
+//!     "input": {
+//!         "a": "0"
+//!     },
+//!     "output": "0"
+//! }, {
+//!     "case": "ordinar",
+//!     "input": {
+//!         "a": "42"
+//!     },
+//!     "output": "-42"
+//! }, {
+//!     "case": "max_to_min",
+//!     "input": {
+//!         "a": "128"
+//!     },
+//!     "output": "-128"
+//! }, {
+//!     "case": "overflow", "should_panic": true,
+//!     "input": {
+//!         "a": "200"
+//!     },
+//!     "output": null
+//! }, {
+//!     "case": "overflow_minimal", "should_panic": true,
+//!     "input": {
+//!         "a": "129"
+//!     },
+//!     "output": null
+//! } ] }
+
+fn main(a: u8) -> i8 {
+    -a
+}

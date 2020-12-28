@@ -1,0 +1,74 @@
+//!
+//! The 'constant_price' contract entry.
+//!
+
+type Address = u160;
+type Balance = u248;
+
+enum TokenAddress {
+    ETH = 0x0000000000000000000000000000000000000000,
+    DAI = 0x318093a9b569e332d0224b0e1aec5fa92cc097d3,
+    wBTC = 0x21c51d49d7fc8bbc8a0ac008f3865d20222e35df,
+    BAT = 0x76c62afd65d87ba9558d4080d63a3058bec4f8e1,
+    MLTT = 0x1fc9d6daa223b6e58a62fa72e8f1e41e3ab24dfe,
+}
+
+impl TokenAddress {
+    pub fn is_known(address: Address) -> bool {
+        match address {
+            0x0000000000000000000000000000000000000000 => true,
+            0x318093a9b569e332d0224b0e1aec5fa92cc097d3 => true,
+            0x21c51d49d7fc8bbc8a0ac008f3865d20222e35df => true,
+            0x76c62afd65d87ba9558d4080d63a3058bec4f8e1 => true,
+            0x1fc9d6daa223b6e58a62fa72e8f1e41e3ab24dfe => true,
+            _ => false,
+        }
+    }
+}
+
+contract ConstantPrice {
+    const MAX_FEE: u16 = 10000;
+    const PRECISION_MUL: Balance = 1E3;
+
+    pub fee: u16;
+
+    pub fn new(fee: u16) -> Self {
+        require(fee <= Self::MAX_FEE, "The fee value must be between 0 and 10000");
+
+        Self {
+            fee: fee,
+        }
+    }
+
+    pub fn deposit(mut self) {
+        require(zksync::msg.recipient == self.address, "The transfer recipient is not the contract");
+        require(TokenAddress::is_known(zksync::msg.token_address), "The deposited token is unknown");
+        require(zksync::msg.amount > 0, "Cannot deposit zero tokens");
+    }
+
+    pub fn exchange(
+        mut self,
+        withdraw_token: Address,
+    ) {
+        require(zksync::msg.recipient == self.address, "The transfer recipient is not the contract");
+        require(TokenAddress::is_known(zksync::msg.token_address), "The deposited token is unknown");
+        require(TokenAddress::is_known(withdraw_token), "The withdrawn token is unknown");
+        require(zksync::msg.token_address != withdraw_token, "Cannot withdraw the same token");
+
+        let withdraw_token_amount = zksync::msg.amount *
+            ((Self::MAX_FEE - self.fee) as Balance * Self::PRECISION_MUL / Self::MAX_FEE as Balance) /
+            Self::PRECISION_MUL;
+
+        self.transfer(zksync::msg.sender, withdraw_token, withdraw_token_amount);
+    }
+
+    pub fn get_fee(self) -> u16 {
+        self.fee
+    }
+}
+
+#[test]
+#[should_panic]
+fn panic() {
+    require(false);
+}

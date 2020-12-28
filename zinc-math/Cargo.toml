@@ -1,0 +1,16 @@
+[package]
+name = "zinc-math"
+version = "0.2.1"
+authors = [
+    "Alex Zarudnyy <a.zarudnyy@matterlabs.dev>",
+    "Alexander Movchan <am@matterlabs.dev>",
+]
+edition = "2018"
+description = "The Zinc math utilities"
+
+[dependencies]
+thiserror = "1.0"
+
+num = "0.3"
+
+zinc-const = { path = "../zinc-const" }

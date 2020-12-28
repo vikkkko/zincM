@@ -1,0 +1,10 @@
+[book]
+title = "Zinc v0.2.1"
+authors = [
+    "Alex Zarudnyy <a.zarudnyy@matterlabs.dev>",
+    "Alex Gluchowski <ag@matterlabs.dev>",
+]
+description = "The official Zinc book"
+language = "en"
+multilingual = false
+src = "src"

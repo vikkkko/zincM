@@ -1,0 +1,8 @@
+# IDE
+/.idea/
+
+# Git
+/.git/
+
+# Rust build
+/target/

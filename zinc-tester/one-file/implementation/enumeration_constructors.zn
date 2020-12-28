@@ -1,0 +1,43 @@
+//! { "cases": [ {
+//!     "case": "first",
+//!     "input": {
+//!         "witness": "5"
+//!     },
+//!     "output": "0x1e"
+//! }, {
+//!     "case": "second",
+//!     "input": {
+//!         "witness": "100"
+//!     },
+//!     "output": "0x258"
+//! }, {
+//!     "case": "third",
+//!     "input": {
+//!         "witness": "0x139370108f4b5e5b5316e1"
+//!     },
+//!     "output": "0x7574a0635bc43623f28946"
+//! } ] }
+
+enum List {
+    FIRST = 1,
+    SECOND = 2,
+    THIRD = 3,
+}
+
+impl List {
+    pub fn first() -> Self {
+        Self::FIRST
+    }
+
+    pub fn second() -> Self {
+        Self::SECOND
+    }
+
+    pub fn third() -> Self {
+        Self::THIRD
+    }
+}
+
+fn main(witness: field) -> field {
+    (List::first() as field + List::second() as field + List::third() as field) * witness
+}

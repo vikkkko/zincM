@@ -1,0 +1,15 @@
+//! { "cases": [ {
+//!     "case": "default",
+//!     "input": {
+//!         "witness": "25"
+//!     },
+//!     "output": "131"
+//! } ] }
+
+const CONST: u248 = 42;
+
+fn main(witness: u248) -> u248 {
+    let local: u248 = 64;
+
+    CONST + local + witness
+}

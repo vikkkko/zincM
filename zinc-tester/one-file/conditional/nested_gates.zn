@@ -1,0 +1,39 @@
+//! { "cases": [ {
+//!     "case": "one",
+//!     "input": {
+//!         "gates": [true, false, false]
+//!     },
+//!     "output": "1"
+//! }, {
+//!     "case": "two",
+//!     "input": {
+//!         "gates": [false, true, true]
+//!     },
+//!     "output": "2"
+//! }, {
+//!     "case": "three",
+//!     "input": {
+//!         "gates": [false, true, false]
+//!     },
+//!     "output": "3"
+//! }, {
+//!     "case": "four",
+//!     "input": {
+//!         "gates": [false, false, false]
+//!     },
+//!     "output": "4"
+//! } ] }
+
+fn main(gates: [bool; 3]) -> u8 {
+    if gates[0] {
+        1
+    } else if gates[1] {
+        if gates[2] {
+            2
+        } else {
+            3
+        }
+    } else {
+        4
+    }
+}

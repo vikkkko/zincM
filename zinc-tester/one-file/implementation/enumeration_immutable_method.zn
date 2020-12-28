@@ -1,0 +1,23 @@
+//! { "cases": [ {
+//!     "case": "default",
+//!     "input": {
+//!         "witness": "8"
+//!     },
+//!     "output": "0x30"
+//! } ] }
+
+enum List {
+    FIRST = 1,
+    SECOND = 2,
+    THIRD = 3,
+}
+
+impl List {
+    pub fn multiply_by_all(self) -> field {
+        self as field * Self::FIRST as field * Self::SECOND as field * Self::THIRD as field
+    }
+}
+
+fn main(witness: field) -> field {
+    List::FIRST.multiply_by_all() * witness
+}

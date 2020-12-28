@@ -1,0 +1,23 @@
+//! { "cases": [ {
+//!     "case": "remainder_zero",
+//!     "input": {
+//!         "witness": "15"
+//!     },
+//!     "output": "5"
+//! }, {
+//!     "case": "remainder_one",
+//!     "input": {
+//!         "witness": "22"
+//!     },
+//!     "output": "7"
+//! }, {
+//!     "case": "remainder_two",
+//!     "input": {
+//!         "witness": "26"
+//!     },
+//!     "output": "8"
+//! } ] }
+
+fn main(witness: u32) -> u32 {
+    witness / 3 as u32
+}

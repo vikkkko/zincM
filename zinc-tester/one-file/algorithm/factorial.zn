@@ -1,0 +1,29 @@
+//! { "cases": [ {
+//!     "case": "one",
+//!     "input": {
+//!         "n": "5"
+//!     },
+//!     "output": "120"
+//! }, {
+//!     "case": "two",
+//!     "input": {
+//!         "n": "6"
+//!     },
+//!     "output": "720"
+//! }, {
+//!     "case": "three",
+//!     "input": {
+//!         "n": "7"
+//!     },
+//!     "output": "5040"
+//! } ] }
+
+const INDEX: u8 = 8;
+
+fn main(n: u8) -> u240 {
+    let mut fact: u240 = 1;
+    for i in 1..INDEX while i <= n {
+        fact *= i as u240;
+    }
+    fact
+}

@@ -1,0 +1,13 @@
+//! { "cases": [ {
+//!     "case": "default",
+//!     "input": {},
+//!     "output": "2545"
+//! } ] }
+
+fn main() -> u16 {
+    let mut sum: u16 = 0;
+    for i in 250..260 {
+        sum += i;
+    }
+    sum
+}

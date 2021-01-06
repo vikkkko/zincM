@@ -75,12 +75,7 @@ pub async fn handle(
     arguments.insert_contract_instance(eth_address_bigint.clone());
 
     let output = contract
-        .run_method(
-            method_name,
-            zinc_types::TransactionMsg::default(),
-            arguments,
-            postgresql,
-        )
+        .run_method(method_name, Vec::new(), arguments, postgresql)
         .await?;
 
     let response = serde_json::json!({

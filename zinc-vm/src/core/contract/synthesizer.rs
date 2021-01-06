@@ -28,7 +28,7 @@ pub struct Synthesizer<'a, E: IEngine, S: IMerkleTree<E>> {
     pub method: zinc_types::ContractMethod,
     pub storages: HashMap<BigInt, StorageGadget<E, S, Sha256Hasher>>,
     pub keeper: Box<dyn IKeeper>,
-    pub transaction: zinc_types::TransactionMsg,
+    pub transactions: Vec<zinc_types::TransactionMsg>,
 
     pub _pd: PhantomData<E>,
 }
@@ -43,7 +43,7 @@ where
             DedupCS::new(LoggingCS::new(cs)),
             self.storages,
             self.keeper,
-            self.transaction,
+            self.transactions,
         );
 
         *self.output = Some(contract.run(

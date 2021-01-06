@@ -20,9 +20,9 @@ bincode = "1.3"
 num = { version = "0.3", features = [ "serde" ] }
 semver = "0.11"
 
-zksync = { git = "https://github.com/vikkkko/zksync.git", branch = "master" }
-zksync_types = { git ="https://github.com/vikkkko/zksync.git", branch = "master" }
-zksync_eth_signer = { git ="https://github.com/vikkkko/zksync.git", branch = "master" }
+zksync = { git = "https://github.com/vikkkko/zksyncM.git", branch = "master" }
+zksync_types = { git = "https://github.com/vikkkko/zksyncM.git", branch = "master" }
+zksync_eth_signer = { git = "https://github.com/vikkkko/zksyncM.git", branch = "master" }
 num_old = { package = "num", version = "0.2.1" }
 
 zinc-project = { path = "../zinc-project" }

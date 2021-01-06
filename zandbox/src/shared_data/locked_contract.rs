@@ -102,7 +102,7 @@ impl LockedContract {
                 input_value,
                 storages,
                 zinc_const::contract::CONSTRUCTOR_IDENTIFIER.to_owned(),
-                zinc_types::TransactionMsg::default(),
+                Vec::new(),
             ))
         })
         .await

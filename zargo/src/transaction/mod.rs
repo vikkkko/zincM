@@ -52,7 +52,8 @@ pub async fn new_initial(
         .sign_transfer(token, amount, fee, recipient, nonce)
         .await
         .map_err(Error::TransactionSigning)?;
-
+    eprintln!("     {} {:?}", "0", transfer);
+    eprintln!("     {} {:?}", "1", signature);
     Ok(zinc_types::Transaction::new(
         ZkSyncTx::Transfer(Box::new(transfer)),
         signature,
@@ -66,6 +67,7 @@ pub async fn try_into_zksync(
     transaction: TransactionMsg,
     wallet: &zksync::Wallet<zksync_eth_signer::PrivateKeySigner, zksync::RpcProvider>,
     contract_fee: Option<BigUint>,
+    nonce_adjust:u32,
 ) -> anyhow::Result<zinc_types::Transaction> {
     let token = wallet
         .tokens
@@ -86,6 +88,7 @@ pub async fn try_into_zksync(
             .map(zinc_types::num_compat_backward)
             .unwrap_or_default();
     let fee = zksync::utils::closest_packable_fee_amount(&fee);
+    eprintln!("     {} {:?}", "wallet:", wallet);
     let nonce = wallet
         .provider
         .account_info(wallet.signer.address)
@@ -93,10 +96,10 @@ pub async fn try_into_zksync(
         .map_err(Error::AccountInfoRetrieving)?
         .committed
         .nonce;
-
+    eprintln!("     {} {:?}", "nonce:", nonce);
     let (transfer, signature) = wallet
         .signer
-        .sign_transfer(token, amount, fee, transaction.recipient, nonce)
+        .sign_transfer(token, amount, fee, transaction.recipient, nonce + nonce_adjust)
         .await
         .map_err(Error::TransactionSigning)?;
 

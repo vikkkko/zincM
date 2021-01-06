@@ -116,12 +116,12 @@ pub async fn handle(
 
     log::info!("[{}] Sending the change-pubkey transaction", log_id);
     let mut change_pubkey = contract.wallet.start_change_pubkey();
-    if let zksync::Network::Rinkeby = network {
-        change_pubkey = change_pubkey.fee(0u64);
-    } else {
-        change_pubkey =
-            change_pubkey.fee(zinc_types::num_compat_backward(contract.change_pubkey_fee));
-    }
+    // if let zksync::Network::Rinkeby = network {
+    change_pubkey = change_pubkey.fee(0u64);
+    // } else {
+    //     change_pubkey =
+    //         change_pubkey.fee(zinc_types::num_compat_backward(contract.change_pubkey_fee));
+    // }
     let mut handle = change_pubkey
         .fee_token(fee_token_id)?
         .send()

@@ -58,14 +58,14 @@ pub struct Body {
     /// The JSON method input.
     pub arguments: serde_json::Value,
     /// The signed transaction which must be sent directly to zkSync.
-    pub transaction: Transaction,
+    pub transaction: Vec<Transaction>,
 }
 
 impl Body {
     ///
     /// A shortcut constructor.
     ///
-    pub fn new(arguments: serde_json::Value, transaction: Transaction) -> Self {
+    pub fn new(arguments: serde_json::Value, transaction: Vec<Transaction>) -> Self {
         Self {
             arguments,
             transaction,

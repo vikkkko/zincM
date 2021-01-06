@@ -65,35 +65,43 @@ pub async fn handle(
         .map_err(Error::InvalidInput)?;
     arguments.insert_contract_instance(eth_address_bigint.clone());
 
+    let mut transaction_msgs: Vec<zinc_types::TransactionMsg> = Vec::new();
+
+    for transaction in (&body.transaction).iter() {
+        let transaction_msg = transaction.try_to_msg(&contract.wallet)?;
+        log::debug!("transactionMsg:{:?}", transaction_msg);
+        transaction_msgs.push(transaction_msg);
+    }
+
     let output = contract
         .run_method(
             query.method,
-            (&body.transaction).try_to_msg(&contract.wallet)?,
+            transaction_msgs,
             arguments,
             postgresql.clone(),
         )
         .await?;
+    let mut transactions = body.transaction;
+    // let mut transactions = Vec::with_capacity(1 + output.transfers.len());
+    // if let zksync_types::ZkSyncTx::Transfer(ref transfer) = body.transaction.tx {
+    //     let token = contract
+    //         .wallet
+    //         .tokens
+    //         .resolve(transfer.token.into())
+    //         .ok_or_else(|| Error::TokenNotFound(transfer.token.to_string()))?;
 
-    let mut transactions = Vec::with_capacity(1 + output.transfers.len());
-    if let zksync_types::ZkSyncTx::Transfer(ref transfer) = body.transaction.tx {
-        let token = contract
-            .wallet
-            .tokens
-            .resolve(transfer.token.into())
-            .ok_or_else(|| Error::TokenNotFound(transfer.token.to_string()))?;
-
-        log::info!(
-            "[{}] Sending {} {} from {} to {} with total batch fee {} {}",
-            log_id,
-            zksync_utils::format_units(&transfer.amount, token.decimals),
-            token.symbol,
-            serde_json::to_string(&transfer.from).expect(zinc_const::panic::DATA_CONVERSION),
-            serde_json::to_string(&transfer.to).expect(zinc_const::panic::DATA_CONVERSION),
-            zksync_utils::format_units(&transfer.fee, token.decimals),
-            token.symbol,
-        );
-    }
-    transactions.push(body.transaction);
+    //     log::info!(
+    //         "[{}] Sending {} {} from {} to {} with total batch fee {} {}",
+    //         log_id,
+    //         zksync_utils::format_units(&transfer.amount, token.decimals),
+    //         token.symbol,
+    //         serde_json::to_string(&transfer.from).expect(zinc_const::panic::DATA_CONVERSION),
+    //         serde_json::to_string(&transfer.to).expect(zinc_const::panic::DATA_CONVERSION),
+    //         zksync_utils::format_units(&transfer.fee, token.decimals),
+    //         token.symbol,
+    //     );
+    // }
+    // transactions.push(body.transaction);
 
     let mut nonces = HashMap::with_capacity(output.storages.len());
     let mut created_instances = contract

@@ -196,7 +196,7 @@ impl IRunnable for Runner {
                         instance.input,
                         storages,
                         method_name,
-                        zinc_types::TransactionMsg::default(),
+                        Vec::new(),
                     ));
 
                     match output {

@@ -126,7 +126,7 @@ impl Contract {
     pub async fn run_method(
         &self,
         method_name: String,
-        transaction: zinc_types::TransactionMsg,
+        transactions: Vec<zinc_types::TransactionMsg>,
         arguments: zinc_types::Value,
         postgresql: DatabaseClient,
     ) -> Result<zinc_vm::ContractOutput, Error> {
@@ -146,7 +146,7 @@ impl Contract {
                 arguments,
                 storages,
                 method_name,
-                transaction,
+                transactions,
             ))
         })
         .await

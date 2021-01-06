@@ -90,7 +90,7 @@ impl IExecutable for Command {
                 }
                 zinc_types::InputBuild::Contract {
                     arguments,
-                    msg: transaction,
+                    msg: transactions,
                     storages,
                 } => {
                     let method_name = self.method.ok_or(Error::MethodNameNotFound)?;
@@ -142,16 +142,22 @@ impl IExecutable for Command {
                         input_storages.insert(address, value);
                     }
 
+                    let mut transaction_msgs: Vec<zinc_types::TransactionMsg> = Vec::new();
+                    for i in 0..transactions.as_array().unwrap().len() {
+                        let transaction_msg =
+                            zinc_types::TransactionMsg::try_from(&transactions.clone()[i])
+                                .map_err(|error| Error::InvalidTransaction {
+                                    inner: error,
+                                    found: transactions.clone(),
+                                })?;
+                        transaction_msgs.push(transaction_msg);
+                    }
+
                     let output = ContractFacade::new(contract).run::<Bn256>(ContractInput::new(
                         method_arguments,
                         input_storages,
                         method_name,
-                        zinc_types::TransactionMsg::try_from(&transaction).map_err(|error| {
-                            Error::InvalidTransaction {
-                                inner: error,
-                                found: transaction.clone(),
-                            }
-                        })?,
+                        transaction_msgs,
                     ))?;
 
                     let mut storages = HashMap::with_capacity(output.storages.len());
@@ -179,7 +185,7 @@ impl IExecutable for Command {
                     }
 
                     let input_str = serde_json::to_string_pretty(
-                        &zinc_types::InputBuild::new_contract(storages, transaction, arguments),
+                        &zinc_types::InputBuild::new_contract(storages, transactions, arguments),
                     )
                     .expect(zinc_const::panic::DATA_CONVERSION);
                     fs::write(&input_path, input_str)

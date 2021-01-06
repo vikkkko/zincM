@@ -82,7 +82,7 @@ impl Facade {
             }
         }
 
-        let mut state = ContractState::new(cs, storages, self.keeper, input.transaction);
+        let mut state = ContractState::new(cs, storages, self.keeper, input.transactions);
 
         let mut num_constraints = 0;
         let result = state.run(
@@ -144,7 +144,7 @@ impl Facade {
                 cs,
                 HashMap::with_capacity(1),
                 Box::new(DummyKeeper::default()),
-                unit_test.zksync_msg.unwrap_or_default(),
+                Vec::new(),
             );
 
             match state.test(self.inner.clone(), unit_test.address) {

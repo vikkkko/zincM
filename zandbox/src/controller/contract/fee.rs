@@ -33,7 +33,7 @@ pub async fn handle(
     let query = query.into_inner();
     let body = body.into_inner();
     let log_id = serde_json::to_string(&query.address).expect(zinc_const::panic::DATA_CONVERSION);
-
+    log::debug!("body:{:?}", body);
     let postgresql = app_data
         .read()
         .expect(zinc_const::panic::SYNCHRONIZATION)
@@ -65,18 +65,21 @@ pub async fn handle(
     let mut arguments = zinc_types::Value::try_from_typed_json(body.arguments, method.input)
         .map_err(Error::InvalidInput)?;
     arguments.insert_contract_instance(eth_address_bigint.clone());
+    log::info!("arguments:{:?}", arguments);
+
+    let mut transaction_msgs: Vec<zinc_types::TransactionMsg> = Vec::new();
+    for transaction in (&body.transaction).iter() {
+        let transaction_msg = transaction.try_to_msg(&contract.wallet)?;
+        log::debug!("transactionMsg:{:?}", transaction_msg);
+        transaction_msgs.push(transaction_msg);
+    }
 
     let output = contract
-        .run_method(
-            query.method,
-            (&body.transaction).try_to_msg(&contract.wallet)?,
-            arguments,
-            postgresql,
-        )
+        .run_method(query.method, transaction_msgs, arguments, postgresql)
         .await?;
 
     let mut fee = BigUint::zero();
-    let token = match body.transaction.tx {
+    let token = match body.transaction[0].tx {
         zksync_types::ZkSyncTx::Transfer(ref transfer) => contract
             .wallet
             .tokens

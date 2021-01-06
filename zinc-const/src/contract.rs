@@ -25,9 +25,11 @@ pub static FIELD_NAME_BALANCES: &str = "balances";
 
 /// The implicit transaction variable name.
 pub static TRANSACTION_VARIABLE_NAME: &str = "msg";
+/// The implicit transaction variable name.
+pub static TRANSACTION_VARIABLE_NAME1: &str = "msg1";
 
 /// The implicit transaction variable fields count.
 pub const TRANSACTION_FIELDS_COUNT: usize = 4;
 
 /// The implicit transaction variable size.
-pub const TRANSACTION_SIZE: usize = 4;
+pub const TRANSACTION_SIZE: usize = 8;

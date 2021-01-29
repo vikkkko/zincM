@@ -100,7 +100,9 @@ impl Analyzer {
 
         let mut input_size = 0;
         for element in argument_list.arguments.iter() {
+            log::debug!("input_size:{}", input_size);
             input_size += Type::from_element(element, scope.clone())?.size();
+            log::debug!("input_size:{}", input_size);
         }
 
         let (element, intermediate) = match function {
@@ -177,19 +179,39 @@ impl Analyzer {
                     }
                     IntrinsicFunctionType::ContractTransfer(function) => {
                         let intrinsic_identifier = function.library_identifier;
-
                         let return_type =
                             function.call(function_location.unwrap_or(location), argument_list)?;
-
                         let element =
                             Value::try_from_type(&return_type, false, None).map(Element::Value)?;
-
                         let intermediate = GeneratorExpressionOperator::call_library(
                             intrinsic_identifier,
                             input_size,
                             return_type.size(),
                         );
+                        (
+                            element,
+                            GeneratorExpressionElement::Operator {
+                                location: function_location.unwrap_or(location),
+                                operator: intermediate,
+                            },
+                        )
+                    }
+                    IntrinsicFunctionType::ContractEvent(function) => {
+                        let intrinsic_identifier = function.library_identifier;
+                        let return_type =
+                            function.call(function_location.unwrap_or(location), argument_list)?;
+                        log::debug!("return_type: {:?}", &return_type);
 
+                        let element =
+                            Value::try_from_type(&return_type, false, None).map(Element::Value)?;
+                        log::debug!("element: {:?}", element.clone());
+                        log::debug!("input_size: {:?}", input_size);
+                        let intermediate = GeneratorExpressionOperator::call_library(
+                            intrinsic_identifier,
+                            input_size,
+                            return_type.size(),
+                        );
+                        log::debug!("intermediate: {:?}", intermediate.clone());
                         (
                             element,
                             GeneratorExpressionElement::Operator {
@@ -213,13 +235,11 @@ impl Analyzer {
 
                         let element =
                             Value::try_from_type(&return_type, false, None).map(Element::Value)?;
-
                         let intermediate = GeneratorExpressionOperator::call_library(
                             intrinsic_identifier,
                             input_size,
                             return_type.size(),
                         );
-
                         (
                             element,
                             GeneratorExpressionElement::Operator {

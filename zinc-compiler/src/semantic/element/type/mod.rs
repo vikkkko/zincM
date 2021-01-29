@@ -316,7 +316,7 @@ impl Type {
             Self::IntegerUnsigned { .. } => 1,
             Self::IntegerSigned { .. } => 1,
             Self::Field(_) => 1,
-            Self::String(_) => 0,
+            Self::String(_) => 1,
             Self::Range(_) => 0,
             Self::RangeInclusive(_) => 0,
             Self::Array(inner) => inner.r#type.size() * inner.size,
@@ -582,23 +582,35 @@ impl Type {
     ///
     pub fn from_element(element: &Element, scope: Rc<RefCell<Scope>>) -> Result<Self, Error> {
         Ok(match element {
-            Element::Value(value) => value.r#type(),
-            Element::Constant(constant) => constant.r#type(),
-            Element::Type(r#type) => r#type.to_owned(),
+            Element::Value(value) => {
+                log::debug!("1");
+                value.r#type()
+            }
+            Element::Constant(constant) => {
+                log::debug!("2");
+                constant.r#type()
+            }
+            Element::Type(r#type) => {
+                log::debug!("3");
+                r#type.to_owned()
+            }
             Element::Path(path) => match *Scope::resolve_path(scope, &path)?.borrow() {
                 ScopeItem::Variable(ref variable) => {
                     let mut r#type = variable.r#type.to_owned();
                     r#type.set_location(path.last().location);
+                    log::debug!("4");
                     r#type
                 }
                 ScopeItem::Constant(ref constant) => {
                     let mut constant = constant.define()?;
                     constant.set_location(path.last().location);
+                    log::debug!("5");
                     constant.r#type()
                 }
                 ScopeItem::Type(ref r#type) => {
                     let mut r#type = r#type.define()?;
                     r#type.set_location(path.last().location);
+                    log::debug!("6");
                     r#type
                 }
                 _ => panic!(zinc_const::panic::VALIDATED_DURING_SYNTAX_ANALYSIS),
@@ -606,6 +618,7 @@ impl Type {
             Element::Place(place) => {
                 let mut r#type = place.r#type.to_owned();
                 r#type.set_location(place.identifier.location);
+                log::debug!("7");
                 r#type
             }
             _ => panic!(zinc_const::panic::VALIDATED_DURING_SYNTAX_ANALYSIS),

@@ -404,6 +404,14 @@ impl IntrinsicScope {
             ScopeItem::Type(ScopeTypeItem::new_built_in(Type::Function(transfer))).wrap(),
         );
 
+        let event = FunctionType::library(LibraryFunctionIdentifier::ContractEvent);
+        log::debug!("event.identifier():{}", event.identifier());
+        Scope::insert_item(
+            scope.clone(),
+            event.identifier(),
+            ScopeItem::Type(ScopeTypeItem::new_built_in(Type::Function(event))).wrap(),
+        );
+
         let transaction_type = StructureType::new(
             None,
             "Transaction".to_owned(),

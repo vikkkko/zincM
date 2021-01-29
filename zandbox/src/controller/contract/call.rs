@@ -13,7 +13,7 @@ use crate::database::model;
 use crate::error::Error;
 use crate::response::Response;
 use crate::storage::Storage;
-
+use zksync_types::Address;
 ///
 /// The HTTP request handler.
 ///
@@ -66,12 +66,12 @@ pub async fn handle(
     arguments.insert_contract_instance(eth_address_bigint.clone());
 
     let mut transaction_msgs: Vec<zinc_types::TransactionMsg> = Vec::new();
-
     for transaction in (&body.transaction).iter() {
         let transaction_msg = transaction.try_to_msg(&contract.wallet)?;
         log::debug!("transactionMsg:{:?}", transaction_msg);
         transaction_msgs.push(transaction_msg);
     }
+    let sender = transaction_msgs.get(0).unwrap().sender;
 
     let output = contract
         .run_method(
@@ -82,26 +82,6 @@ pub async fn handle(
         )
         .await?;
     let mut transactions = body.transaction;
-    // let mut transactions = Vec::with_capacity(1 + output.transfers.len());
-    // if let zksync_types::ZkSyncTx::Transfer(ref transfer) = body.transaction.tx {
-    //     let token = contract
-    //         .wallet
-    //         .tokens
-    //         .resolve(transfer.token.into())
-    //         .ok_or_else(|| Error::TokenNotFound(transfer.token.to_string()))?;
-
-    //     log::info!(
-    //         "[{}] Sending {} {} from {} to {} with total batch fee {} {}",
-    //         log_id,
-    //         zksync_utils::format_units(&transfer.amount, token.decimals),
-    //         token.symbol,
-    //         serde_json::to_string(&transfer.from).expect(zinc_const::panic::DATA_CONVERSION),
-    //         serde_json::to_string(&transfer.to).expect(zinc_const::panic::DATA_CONVERSION),
-    //         zksync_utils::format_units(&transfer.fee, token.decimals),
-    //         token.symbol,
-    //     );
-    // }
-    // transactions.push(body.transaction);
 
     let mut nonces = HashMap::with_capacity(output.storages.len());
     let mut created_instances = contract
@@ -149,6 +129,64 @@ pub async fn handle(
                 .await?;
         }
     }
+    for (address, events) in output.events.into_iter() {
+        if let Some(instance) = created_instances.remove(&address) {
+            let account_id = instance.account_id;
+            let mut es = Vec::new();
+            let mut index = 0i16;
+            for event in events {
+                log::debug!("event:{:?}", event);
+                let event = model::event::insert::Input::new(
+                    account_id,
+                    index,
+                    sender,
+                    event.name,
+                    event.value.into_json(),
+                );
+                index = index + 1;
+                log::debug!(
+                    "account_id{:?}--address:{:?}--event:{:?}",
+                    account_id,
+                    address,
+                    event
+                );
+                es.push(event);
+            }
+            postgresql.insert_events(es, Some(&mut transaction)).await?;
+        } else {
+            let contract = postgresql
+                .select_contract(
+                    model::contract::select_one::Input::new(address),
+                    Some(&mut transaction),
+                )
+                .await?;
+            let mut es = Vec::new();
+            let account_id = contract.account_id;
+            let mut index = 0i16;
+            for event in events {
+                let value: zinc_types::Value = event.value;
+                let a = value.into_json();
+                log::debug!("a:{:?}", a);
+                let event = model::event::insert::Input::new(
+                    account_id as zksync_types::AccountId,
+                    index,
+                    sender,
+                    event.name,
+                    a,
+                );
+                index = index + 1;
+                log::debug!(
+                    "contract.account_id:{:?}--address:{:?}--event:{:?}",
+                    contract.account_id,
+                    address,
+                    event
+                );
+                es.push(event);
+            }
+            postgresql.insert_events(es, Some(&mut transaction)).await?;
+        }
+    }
+
     transaction.commit().await?;
 
     let response = serde_json::json!({

@@ -113,6 +113,8 @@ impl Type {
                 "".to_owned()
             }
         );
+        log::debug!("new_defined:{}", title);
+
         let item_id = ITEM_INDEX.next(title);
 
         Self {
@@ -129,6 +131,8 @@ impl Type {
     /// Useful method to declare an intrinsic type without a `location` or `intermediate` representation.
     ///
     pub fn new_built_in(inner: TypeElement) -> Self {
+        log::debug!("new_built_in:{}", inner.to_string());
+
         let item_id = ITEM_INDEX.next(inner.to_string());
 
         Self {

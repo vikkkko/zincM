@@ -74,7 +74,7 @@ impl LockedContract {
         let eth_address: zksync_types::Address =
             zksync_types::tx::PackedEthSignature::address_from_private_key(&eth_private_key)
                 .expect(zinc_const::panic::DATA_CONVERSION);
-
+        log::debug!("bytecode.len():{:?}", bytecode.as_slice().len());
         let application = zinc_types::Application::try_from_slice(bytecode.as_slice())
             .map_err(Error::InvalidBytecode)?;
         let build = match application.clone() {

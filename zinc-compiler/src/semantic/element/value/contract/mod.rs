@@ -163,6 +163,7 @@ impl Contract {
             }
             offset += r#type.size();
         }
+        log::debug!("here3");
 
         Err(Error::StructureFieldDoesNotExist {
             location: expected.location,

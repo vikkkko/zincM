@@ -94,7 +94,7 @@ impl IBytecodeWritable for Integer {
                 bitlength,
             }),
         };
-
+        log::debug!("Integer:{}", self.value);
         state
             .borrow_mut()
             .push_instruction(Instruction::Push(Push::new(self.value, scalar_type)), None);

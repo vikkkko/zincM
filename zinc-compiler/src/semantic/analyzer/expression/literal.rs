@@ -52,6 +52,7 @@ impl Analyzer {
 
         let intermediate = GeneratorConstant::try_from_semantic(&constant)
             .map(GeneratorExpressionOperand::Constant);
+        log::debug!("integer:{:?}", intermediate);
         let element = Element::Constant(constant);
 
         Ok((element, intermediate))
@@ -60,10 +61,15 @@ impl Analyzer {
     ///
     /// Converts the syntax string literal to a semantic string literal.
     ///
-    pub fn string(literal: StringLiteral) -> Result<Element, Error> {
-        Ok(Element::Constant(Constant::String(StringConstant::new(
-            literal.location,
-            literal.into(),
-        ))))
+    pub fn string(
+        literal: StringLiteral,
+    ) -> Result<(Element, Option<GeneratorExpressionOperand>), Error> {
+        log::debug!("string:{:?}", literal);
+        let constant = Constant::String(StringConstant::new(literal.location, literal.into()));
+        log::debug!("constant:{:?}", &constant);
+        let intermediate = GeneratorConstant::try_from_semantic(&constant)
+            .map(GeneratorExpressionOperand::Constant);
+        log::debug!("integer:{:?}", intermediate);
+        Ok((Element::Constant(constant), intermediate))
     }
 }

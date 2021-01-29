@@ -123,7 +123,7 @@ impl Structure {
 
             offset += element_size;
         }
-
+        log::debug!("here");
         Err(Error::StructureFieldDoesNotExist {
             location: identifier.location,
             r#type: self

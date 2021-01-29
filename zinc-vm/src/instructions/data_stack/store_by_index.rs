@@ -42,6 +42,11 @@ impl<VM: IVirtualMachine> IExecutable<VM> for StoreByIndex {
         }
 
         for (i, value) in array.into_iter().enumerate() {
+            log::debug!(
+                "store:{:?}---{:?}",
+                self.address + i,
+                Cell::Value(value.clone())
+            );
             vm.store(self.address + i, Cell::Value(value))?;
         }
 

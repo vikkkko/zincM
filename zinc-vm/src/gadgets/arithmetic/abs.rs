@@ -18,7 +18,9 @@ where
         CS: ConstraintSystem<E>,
     {
         match scalar.get_type() {
-            zinc_types::ScalarType::Field | zinc_types::ScalarType::Boolean => Ok(scalar.clone()),
+            zinc_types::ScalarType::Field
+            | zinc_types::ScalarType::Boolean
+            | zinc_types::ScalarType::String => Ok(scalar.clone()),
 
             zinc_types::ScalarType::Integer(int_type) => {
                 if !int_type.is_signed {

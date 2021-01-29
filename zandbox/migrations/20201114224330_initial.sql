@@ -48,3 +48,17 @@ CREATE TABLE IF NOT EXISTS zandbox.fields (
         FOREIGN KEY (account_id)
             REFERENCES zandbox.contracts(account_id)
 );
+
+CREATE TABLE IF NOT EXISTS zandbox.events (
+    ID  SERIAL PRIMARY KEY,
+    account_id         BIGINT,
+    index              SMALLINT,
+
+    sender              BYTEA NOT NULL,
+    name               TEXT NOT NULL,
+    value              JSON NOT NULL,
+
+    CONSTRAINT fk_account_id
+        FOREIGN KEY (account_id)
+            REFERENCES zandbox.contracts(account_id)
+);

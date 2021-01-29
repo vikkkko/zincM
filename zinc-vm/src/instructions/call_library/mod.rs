@@ -32,6 +32,7 @@ use self::collections_mtreemap::contains::Contains as CollectionsMTreeMapContain
 use self::collections_mtreemap::get::Get as CollectionsMTreeMapGet;
 use self::collections_mtreemap::insert::Insert as CollectionsMTreeMapInsert;
 use self::collections_mtreemap::remove::Remove as CollectionsMTreeMapRemove;
+use self::contract::event::Event as ZksyncEvent;
 use self::contract::transfer::Transfer as ZksyncTransfer;
 use self::convert::from_bits_field::FromBitsField as ConvertFromBitsField;
 use self::convert::from_bits_signed::FromBitsSigned as ConvertFromBitsSigned;
@@ -84,6 +85,10 @@ impl<VM: IVirtualMachine> IExecutable<VM> for CallLibrary {
             LibraryFunctionIdentifier::FfInvert => vm.call_native(FfInverse),
 
             LibraryFunctionIdentifier::ContractTransfer => vm.call_native(ZksyncTransfer),
+
+            LibraryFunctionIdentifier::ContractEvent => {
+                vm.call_native(ZksyncEvent::new(self.input_size)?)
+            }
 
             LibraryFunctionIdentifier::CollectionsMTreeMapGet => vm.call_native(
                 CollectionsMTreeMapGet::new(self.input_size, self.output_size),

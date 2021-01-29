@@ -67,7 +67,7 @@ pub async fn try_into_zksync(
     transaction: TransactionMsg,
     wallet: &zksync::Wallet<zksync_eth_signer::PrivateKeySigner, zksync::RpcProvider>,
     contract_fee: Option<BigUint>,
-    nonce_adjust:u32,
+    nonce_adjust: u32,
 ) -> anyhow::Result<zinc_types::Transaction> {
     let token = wallet
         .tokens
@@ -99,7 +99,13 @@ pub async fn try_into_zksync(
     eprintln!("     {} {:?}", "nonce:", nonce);
     let (transfer, signature) = wallet
         .signer
-        .sign_transfer(token, amount, fee, transaction.recipient, nonce + nonce_adjust)
+        .sign_transfer(
+            token,
+            amount,
+            fee,
+            transaction.recipient,
+            nonce + nonce_adjust,
+        )
         .await
         .map_err(Error::TransactionSigning)?;
 

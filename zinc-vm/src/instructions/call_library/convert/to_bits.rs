@@ -43,6 +43,10 @@ impl<E: IEngine, S: IMerkleTree<E>> INativeCallable<E, S> for ToBits {
             zinc_types::ScalarType::Field => {
                 expr.into_bits_le_strict(cs.namespace(|| "into_bits_le_strict"))?
             }
+            zinc_types::ScalarType::String => {
+                log::error!("zinc_types::ScalarType::String");
+                expr.into_bits_le_strict(cs.namespace(|| "into_bits_le_strict"))?
+            }
         };
 
         // We use big-endian

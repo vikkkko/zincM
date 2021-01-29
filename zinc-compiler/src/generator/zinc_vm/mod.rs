@@ -325,7 +325,6 @@ impl State {
                 }
 
                 Self::print_instructions(self.instructions.as_slice());
-
                 zinc_types::Application::new_contract(
                     self.manifest.project.name,
                     storage,

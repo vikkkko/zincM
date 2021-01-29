@@ -55,6 +55,10 @@ impl<E: IEngine> EvaluationStack<E> {
             .push(Vec::with_capacity(Self::STACK_INITIAL_CAPACITY));
     }
 
+    pub fn len(&mut self) -> usize {
+        self.stack.len()
+    }
+
     pub fn merge<CS>(&mut self, mut cs: CS, condition: &Scalar<E>) -> Result<(), Error>
     where
         CS: ConstraintSystem<E>,

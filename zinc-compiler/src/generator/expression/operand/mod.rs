@@ -61,7 +61,10 @@ pub enum Operand {
 impl IBytecodeWritable for Operand {
     fn write_to_zinc_vm(self, state: Rc<RefCell<ZincVMState>>) {
         match self {
-            Self::Constant(inner) => inner.write_to_zinc_vm(state),
+            Self::Constant(inner) => {
+                log::debug!("write_to_zinc_vm-Constant");
+                inner.write_to_zinc_vm(state);
+            }
             Self::Place(mut inner) => match inner.memory_type {
                 MemoryType::Stack => {
                     let location = inner.identifier.location;

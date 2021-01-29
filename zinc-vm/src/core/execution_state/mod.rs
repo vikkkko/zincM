@@ -8,20 +8,22 @@ pub mod data_stack;
 pub mod evaluation_stack;
 pub mod function_frame;
 
-use std::fmt;
-
-use crate::core::contract::output::initializer::Initializer;
-use crate::gadgets::scalar::Scalar;
-use crate::IEngine;
-
 use self::data_stack::DataStack;
 use self::evaluation_stack::EvaluationStack;
 use self::function_frame::Frame;
+use crate::core::contract::output::initializer::Initializer;
+use crate::gadgets::scalar::Scalar;
+use crate::IEngine;
+use num::BigInt;
+use std::collections::HashMap;
+use std::fmt;
+use zksync_types::Address;
 
 #[derive(Debug)]
 pub struct ExecutionState<E: IEngine> {
     pub instruction_counter: usize,
     pub evaluation_stack: EvaluationStack<E>,
+    pub events: HashMap<zksync_types::Address, Vec<zinc_types::ContractEventType>>,
     pub data_stack: DataStack<E>,
     pub conditions_stack: Vec<Scalar<E>>,
     pub frames_stack: Vec<Frame<E>>,
@@ -39,6 +41,7 @@ impl<E: IEngine> ExecutionState<E> {
         Self {
             instruction_counter: 0,
             evaluation_stack: EvaluationStack::new(),
+            events: HashMap::with_capacity(1),
             data_stack: DataStack::new(),
             conditions_stack: Vec::with_capacity(Self::CONDITIONS_INITIAL_CAPACITY),
             frames_stack: Vec::with_capacity(Self::FRAMES_INITIAL_CAPACITY),

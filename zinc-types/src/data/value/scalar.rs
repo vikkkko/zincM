@@ -17,6 +17,7 @@ use crate::data::r#type::scalar::integer::Type as IntegerType;
 pub enum Value {
     /// Represented with JSON boolean.
     Boolean(bool),
+    String(BigInt),
     /// Represented with numeric string. We cannot use the JSON native numeric type, because
     /// it cannot store large values like `2^253`.
     Integer(BigInt, IntegerType),
@@ -38,7 +39,7 @@ impl Value {
                     BigInt::zero()
                 }
             }
-            Self::Field(value) | Self::Integer(value, _) => value.clone(),
+            Self::String(value) | Self::Field(value) | Self::Integer(value, _) => value.clone(),
         }
     }
 }

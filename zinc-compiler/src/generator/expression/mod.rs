@@ -57,6 +57,7 @@ impl Expression {
     /// Pushes an element, that is, either an operator or operand to the expression.
     ///
     pub fn push_element(&mut self, element: Element) {
+        log::debug!("push_element:{:?}", element);
         self.elements.push(element)
     }
 
@@ -64,6 +65,7 @@ impl Expression {
     /// Pushes an operand to the expression.
     ///
     pub fn push_operand(&mut self, operand: Operand) {
+        log::debug!("push_operand:{:?}", operand);
         self.elements.push(Element::Operand(operand))
     }
 
@@ -71,6 +73,7 @@ impl Expression {
     /// Pushes an operator to the expression.
     ///
     pub fn push_operator(&mut self, location: Location, operator: Operator) {
+        log::debug!("push_operator:{:?}--{:?}", location, operator);
         self.elements.push(Element::Operator { location, operator })
     }
 
@@ -346,7 +349,6 @@ impl Expression {
                     },
                     Some(location),
                 );
-
                 expression.write_to_zinc_vm(state.clone());
 
                 state
@@ -476,6 +478,7 @@ impl Expression {
         output_size: usize,
         location: Location,
     ) {
+        log::debug!("call_standard_library:{:?}", identifier);
         state.borrow_mut().push_instruction(
             Instruction::CallLibrary(zinc_types::CallLibrary::new(
                 identifier,
@@ -490,351 +493,356 @@ impl Expression {
 impl IBytecodeWritable for Expression {
     fn write_to_zinc_vm(self, state: Rc<RefCell<ZincVMState>>) {
         for element in self.elements.into_iter() {
+            log::debug!("00000000000:{:?}", element);
             match element {
                 Element::Operand(operand) => {
+                    log::debug!("111111111111111:{:?}", operand);
                     operand.write_to_zinc_vm(state.clone());
                 }
-                Element::Operator { location, operator } => match operator {
-                    Operator::None => {}
+                Element::Operator { location, operator } => {
+                    log::debug!("222222222222222:{:?}", operator);
+                    match operator {
+                        Operator::None => {}
 
-                    Operator::Assignment { place, expression } => {
-                        Self::assignment(state.clone(), place, expression, location)
-                    }
-
-                    Operator::AssignmentBitwiseOr {
-                        place,
-                        expression,
-                        operator: _,
-                    } => Self::assignment_with_operation(
-                        state.clone(),
-                        place,
-                        expression,
-                        Instruction::BitwiseOr(zinc_types::BitwiseOr),
-                        location,
-                    ),
-                    Operator::AssignmentBitwiseXor {
-                        place,
-                        expression,
-                        operator: _,
-                    } => Self::assignment_with_operation(
-                        state.clone(),
-                        place,
-                        expression,
-                        Instruction::BitwiseXor(zinc_types::BitwiseXor),
-                        location,
-                    ),
-                    Operator::AssignmentBitwiseAnd {
-                        place,
-                        expression,
-                        operator: _,
-                    } => Self::assignment_with_operation(
-                        state.clone(),
-                        place,
-                        expression,
-                        Instruction::BitwiseAnd(zinc_types::BitwiseAnd),
-                        location,
-                    ),
-                    Operator::AssignmentBitwiseShiftLeft {
-                        place,
-                        expression,
-                        operator: _,
-                    } => Self::assignment_with_operation(
-                        state.clone(),
-                        place,
-                        expression,
-                        Instruction::BitwiseShiftLeft(zinc_types::BitwiseShiftLeft),
-                        location,
-                    ),
-                    Operator::AssignmentBitwiseShiftRight {
-                        place,
-                        expression,
-                        operator: _,
-                    } => Self::assignment_with_operation(
-                        state.clone(),
-                        place,
-                        expression,
-                        Instruction::BitwiseShiftRight(zinc_types::BitwiseShiftRight),
-                        location,
-                    ),
-                    Operator::AssignmentAddition {
-                        place,
-                        expression,
-                        operator: _,
-                    } => Self::assignment_with_operation(
-                        state.clone(),
-                        place,
-                        expression,
-                        Instruction::Add(zinc_types::Add),
-                        location,
-                    ),
-                    Operator::AssignmentSubtraction {
-                        place,
-                        expression,
-                        operator: _,
-                    } => Self::assignment_with_operation(
-                        state.clone(),
-                        place,
-                        expression,
-                        Instruction::Sub(zinc_types::Sub),
-                        location,
-                    ),
-                    Operator::AssignmentMultiplication {
-                        place,
-                        expression,
-                        operator: _,
-                    } => Self::assignment_with_operation(
-                        state.clone(),
-                        place,
-                        expression,
-                        Instruction::Mul(zinc_types::Mul),
-                        location,
-                    ),
-                    Operator::AssignmentDivision {
-                        place,
-                        expression,
-                        operator: _,
-                    } => Self::assignment_with_operation(
-                        state.clone(),
-                        place,
-                        expression,
-                        Instruction::Div(zinc_types::Div),
-                        location,
-                    ),
-                    Operator::AssignmentRemainder {
-                        place,
-                        expression,
-                        operator: _,
-                    } => Self::assignment_with_operation(
-                        state.clone(),
-                        place,
-                        expression,
-                        Instruction::Rem(zinc_types::Rem),
-                        location,
-                    ),
-
-                    Operator::Or => {
-                        //                        Self::binary(state.clone(), Instruction::Or(zinc_types::Or), location)
-                    }
-                    Operator::OrShortCircuitStart => {
-                        state
-                            .borrow_mut()
-                            .push_instruction(Instruction::Not(zinc_types::Not), None);
-                        state
-                            .borrow_mut()
-                            .push_instruction(Instruction::If(zinc_types::If), None);
-                    }
-                    Operator::OrShortCircuitEnd => {
-                        state
-                            .borrow_mut()
-                            .push_instruction(Instruction::Else(zinc_types::Else), None);
-                        state.borrow_mut().push_instruction(
-                            Instruction::Push(zinc_types::Push::new(
-                                BigInt::one(),
-                                zinc_types::ScalarType::Boolean,
-                            )),
-                            None,
-                        );
-                        state
-                            .borrow_mut()
-                            .push_instruction(Instruction::EndIf(zinc_types::EndIf), None);
-                    }
-                    Operator::Xor => {
-                        Self::binary(state.clone(), Instruction::Xor(zinc_types::Xor), location)
-                    }
-                    Operator::And => {
-                        //                        Self::binary(state.clone(), Instruction::And(zinc_types::And), location)
-                    }
-                    Operator::AndShortCircuitStart => {
-                        state
-                            .borrow_mut()
-                            .push_instruction(Instruction::If(zinc_types::If), None);
-                    }
-                    Operator::AndShortCircuitEnd => {
-                        state
-                            .borrow_mut()
-                            .push_instruction(Instruction::Else(zinc_types::Else), None);
-                        state.borrow_mut().push_instruction(
-                            Instruction::Push(zinc_types::Push::new(
-                                BigInt::zero(),
-                                zinc_types::ScalarType::Boolean,
-                            )),
-                            None,
-                        );
-                        state
-                            .borrow_mut()
-                            .push_instruction(Instruction::EndIf(zinc_types::EndIf), None);
-                    }
-
-                    Operator::Equals { .. } => {
-                        Self::binary(state.clone(), Instruction::Eq(zinc_types::Eq), location)
-                    }
-                    Operator::NotEquals { .. } => {
-                        Self::binary(state.clone(), Instruction::Ne(zinc_types::Ne), location)
-                    }
-                    Operator::GreaterEquals { .. } => {
-                        Self::binary(state.clone(), Instruction::Ge(zinc_types::Ge), location)
-                    }
-                    Operator::LesserEquals { .. } => {
-                        Self::binary(state.clone(), Instruction::Le(zinc_types::Le), location)
-                    }
-                    Operator::Greater { .. } => {
-                        Self::binary(state.clone(), Instruction::Gt(zinc_types::Gt), location)
-                    }
-                    Operator::Lesser { .. } => {
-                        Self::binary(state.clone(), Instruction::Lt(zinc_types::Lt), location)
-                    }
-
-                    Operator::BitwiseOr { .. } => Self::binary(
-                        state.clone(),
-                        Instruction::BitwiseOr(zinc_types::BitwiseOr),
-                        location,
-                    ),
-                    Operator::BitwiseXor { .. } => Self::binary(
-                        state.clone(),
-                        Instruction::BitwiseXor(zinc_types::BitwiseXor),
-                        location,
-                    ),
-                    Operator::BitwiseAnd { .. } => Self::binary(
-                        state.clone(),
-                        Instruction::BitwiseAnd(zinc_types::BitwiseAnd),
-                        location,
-                    ),
-                    Operator::BitwiseShiftLeft => Self::binary(
-                        state.clone(),
-                        Instruction::BitwiseShiftLeft(zinc_types::BitwiseShiftLeft),
-                        location,
-                    ),
-                    Operator::BitwiseShiftRight => Self::binary(
-                        state.clone(),
-                        Instruction::BitwiseShiftRight(zinc_types::BitwiseShiftRight),
-                        location,
-                    ),
-
-                    Operator::Addition { .. } => {
-                        Self::binary(state.clone(), Instruction::Add(zinc_types::Add), location)
-                    }
-                    Operator::Subtraction { .. } => {
-                        Self::binary(state.clone(), Instruction::Sub(zinc_types::Sub), location)
-                    }
-                    Operator::Multiplication { .. } => {
-                        Self::binary(state.clone(), Instruction::Mul(zinc_types::Mul), location)
-                    }
-                    Operator::Division { .. } => {
-                        Self::binary(state.clone(), Instruction::Div(zinc_types::Div), location)
-                    }
-                    Operator::Remainder { .. } => {
-                        Self::binary(state.clone(), Instruction::Rem(zinc_types::Rem), location)
-                    }
-
-                    Operator::Casting { r#type } => {
-                        if let Some(scalar_type) = r#type.into() {
-                            Self::unary(
-                                state.clone(),
-                                Instruction::Cast(zinc_types::Cast::new(scalar_type)),
-                                location,
-                            )
+                        Operator::Assignment { place, expression } => {
+                            Self::assignment(state.clone(), place, expression, location)
                         }
-                    }
 
-                    Operator::Not => {
-                        Self::unary(state.clone(), Instruction::Not(zinc_types::Not), location)
-                    }
-                    Operator::BitwiseNot => Self::unary(
-                        state.clone(),
-                        Instruction::BitwiseNot(zinc_types::BitwiseNot),
-                        location,
-                    ),
-                    Operator::Negation => {
-                        Self::unary(state.clone(), Instruction::Neg(zinc_types::Neg), location)
-                    }
+                        Operator::AssignmentBitwiseOr {
+                            place,
+                            expression,
+                            operator: _,
+                        } => Self::assignment_with_operation(
+                            state.clone(),
+                            place,
+                            expression,
+                            Instruction::BitwiseOr(zinc_types::BitwiseOr),
+                            location,
+                        ),
+                        Operator::AssignmentBitwiseXor {
+                            place,
+                            expression,
+                            operator: _,
+                        } => Self::assignment_with_operation(
+                            state.clone(),
+                            place,
+                            expression,
+                            Instruction::BitwiseXor(zinc_types::BitwiseXor),
+                            location,
+                        ),
+                        Operator::AssignmentBitwiseAnd {
+                            place,
+                            expression,
+                            operator: _,
+                        } => Self::assignment_with_operation(
+                            state.clone(),
+                            place,
+                            expression,
+                            Instruction::BitwiseAnd(zinc_types::BitwiseAnd),
+                            location,
+                        ),
+                        Operator::AssignmentBitwiseShiftLeft {
+                            place,
+                            expression,
+                            operator: _,
+                        } => Self::assignment_with_operation(
+                            state.clone(),
+                            place,
+                            expression,
+                            Instruction::BitwiseShiftLeft(zinc_types::BitwiseShiftLeft),
+                            location,
+                        ),
+                        Operator::AssignmentBitwiseShiftRight {
+                            place,
+                            expression,
+                            operator: _,
+                        } => Self::assignment_with_operation(
+                            state.clone(),
+                            place,
+                            expression,
+                            Instruction::BitwiseShiftRight(zinc_types::BitwiseShiftRight),
+                            location,
+                        ),
+                        Operator::AssignmentAddition {
+                            place,
+                            expression,
+                            operator: _,
+                        } => Self::assignment_with_operation(
+                            state.clone(),
+                            place,
+                            expression,
+                            Instruction::Add(zinc_types::Add),
+                            location,
+                        ),
+                        Operator::AssignmentSubtraction {
+                            place,
+                            expression,
+                            operator: _,
+                        } => Self::assignment_with_operation(
+                            state.clone(),
+                            place,
+                            expression,
+                            Instruction::Sub(zinc_types::Sub),
+                            location,
+                        ),
+                        Operator::AssignmentMultiplication {
+                            place,
+                            expression,
+                            operator: _,
+                        } => Self::assignment_with_operation(
+                            state.clone(),
+                            place,
+                            expression,
+                            Instruction::Mul(zinc_types::Mul),
+                            location,
+                        ),
+                        Operator::AssignmentDivision {
+                            place,
+                            expression,
+                            operator: _,
+                        } => Self::assignment_with_operation(
+                            state.clone(),
+                            place,
+                            expression,
+                            Instruction::Div(zinc_types::Div),
+                            location,
+                        ),
+                        Operator::AssignmentRemainder {
+                            place,
+                            expression,
+                            operator: _,
+                        } => Self::assignment_with_operation(
+                            state.clone(),
+                            place,
+                            expression,
+                            Instruction::Rem(zinc_types::Rem),
+                            location,
+                        ),
 
-                    Operator::Index { expression, access } => {
-                        if let Some(offset) = access.offset {
-                            IntegerConstant::new(
-                                BigInt::from(offset),
-                                false,
-                                zinc_const::bitlength::FIELD,
-                            )
-                            .write_to_zinc_vm(state.clone());
-                        } else {
-                            expression.write_to_zinc_vm(state.clone());
+                        Operator::Or => {
+                            //                        Self::binary(state.clone(), Instruction::Or(zinc_types::Or), location)
+                        }
+                        Operator::OrShortCircuitStart => {
+                            state
+                                .borrow_mut()
+                                .push_instruction(Instruction::Not(zinc_types::Not), None);
+                            state
+                                .borrow_mut()
+                                .push_instruction(Instruction::If(zinc_types::If), None);
+                        }
+                        Operator::OrShortCircuitEnd => {
+                            state
+                                .borrow_mut()
+                                .push_instruction(Instruction::Else(zinc_types::Else), None);
                             state.borrow_mut().push_instruction(
-                                Instruction::Cast(zinc_types::Cast::new(
-                                    zinc_types::ScalarType::Field,
+                                Instruction::Push(zinc_types::Push::new(
+                                    BigInt::one(),
+                                    zinc_types::ScalarType::Boolean,
                                 )),
-                                Some(location),
+                                None,
                             );
-                            if access.slice_length == 1 {
+                            state
+                                .borrow_mut()
+                                .push_instruction(Instruction::EndIf(zinc_types::EndIf), None);
+                        }
+                        Operator::Xor => {
+                            Self::binary(state.clone(), Instruction::Xor(zinc_types::Xor), location)
+                        }
+                        Operator::And => {
+                            //                        Self::binary(state.clone(), Instruction::And(zinc_types::And), location)
+                        }
+                        Operator::AndShortCircuitStart => {
+                            state
+                                .borrow_mut()
+                                .push_instruction(Instruction::If(zinc_types::If), None);
+                        }
+                        Operator::AndShortCircuitEnd => {
+                            state
+                                .borrow_mut()
+                                .push_instruction(Instruction::Else(zinc_types::Else), None);
+                            state.borrow_mut().push_instruction(
+                                Instruction::Push(zinc_types::Push::new(
+                                    BigInt::zero(),
+                                    zinc_types::ScalarType::Boolean,
+                                )),
+                                None,
+                            );
+                            state
+                                .borrow_mut()
+                                .push_instruction(Instruction::EndIf(zinc_types::EndIf), None);
+                        }
+
+                        Operator::Equals { .. } => {
+                            Self::binary(state.clone(), Instruction::Eq(zinc_types::Eq), location)
+                        }
+                        Operator::NotEquals { .. } => {
+                            Self::binary(state.clone(), Instruction::Ne(zinc_types::Ne), location)
+                        }
+                        Operator::GreaterEquals { .. } => {
+                            Self::binary(state.clone(), Instruction::Ge(zinc_types::Ge), location)
+                        }
+                        Operator::LesserEquals { .. } => {
+                            Self::binary(state.clone(), Instruction::Le(zinc_types::Le), location)
+                        }
+                        Operator::Greater { .. } => {
+                            Self::binary(state.clone(), Instruction::Gt(zinc_types::Gt), location)
+                        }
+                        Operator::Lesser { .. } => {
+                            Self::binary(state.clone(), Instruction::Lt(zinc_types::Lt), location)
+                        }
+
+                        Operator::BitwiseOr { .. } => Self::binary(
+                            state.clone(),
+                            Instruction::BitwiseOr(zinc_types::BitwiseOr),
+                            location,
+                        ),
+                        Operator::BitwiseXor { .. } => Self::binary(
+                            state.clone(),
+                            Instruction::BitwiseXor(zinc_types::BitwiseXor),
+                            location,
+                        ),
+                        Operator::BitwiseAnd { .. } => Self::binary(
+                            state.clone(),
+                            Instruction::BitwiseAnd(zinc_types::BitwiseAnd),
+                            location,
+                        ),
+                        Operator::BitwiseShiftLeft => Self::binary(
+                            state.clone(),
+                            Instruction::BitwiseShiftLeft(zinc_types::BitwiseShiftLeft),
+                            location,
+                        ),
+                        Operator::BitwiseShiftRight => Self::binary(
+                            state.clone(),
+                            Instruction::BitwiseShiftRight(zinc_types::BitwiseShiftRight),
+                            location,
+                        ),
+
+                        Operator::Addition { .. } => {
+                            Self::binary(state.clone(), Instruction::Add(zinc_types::Add), location)
+                        }
+                        Operator::Subtraction { .. } => {
+                            Self::binary(state.clone(), Instruction::Sub(zinc_types::Sub), location)
+                        }
+                        Operator::Multiplication { .. } => {
+                            Self::binary(state.clone(), Instruction::Mul(zinc_types::Mul), location)
+                        }
+                        Operator::Division { .. } => {
+                            Self::binary(state.clone(), Instruction::Div(zinc_types::Div), location)
+                        }
+                        Operator::Remainder { .. } => {
+                            Self::binary(state.clone(), Instruction::Rem(zinc_types::Rem), location)
+                        }
+
+                        Operator::Casting { r#type } => {
+                            if let Some(scalar_type) = r#type.into() {
+                                Self::unary(
+                                    state.clone(),
+                                    Instruction::Cast(zinc_types::Cast::new(scalar_type)),
+                                    location,
+                                )
+                            }
+                        }
+
+                        Operator::Not => {
+                            Self::unary(state.clone(), Instruction::Not(zinc_types::Not), location)
+                        }
+                        Operator::BitwiseNot => Self::unary(
+                            state.clone(),
+                            Instruction::BitwiseNot(zinc_types::BitwiseNot),
+                            location,
+                        ),
+                        Operator::Negation => {
+                            Self::unary(state.clone(), Instruction::Neg(zinc_types::Neg), location)
+                        }
+
+                        Operator::Index { expression, access } => {
+                            if let Some(offset) = access.offset {
                                 IntegerConstant::new(
-                                    BigInt::from(access.element_size),
+                                    BigInt::from(offset),
                                     false,
                                     zinc_const::bitlength::FIELD,
                                 )
                                 .write_to_zinc_vm(state.clone());
+                            } else {
+                                expression.write_to_zinc_vm(state.clone());
                                 state.borrow_mut().push_instruction(
-                                    Instruction::Mul(zinc_types::Mul),
+                                    Instruction::Cast(zinc_types::Cast::new(
+                                        zinc_types::ScalarType::Field,
+                                    )),
                                     Some(location),
                                 );
+                                if access.slice_length == 1 {
+                                    IntegerConstant::new(
+                                        BigInt::from(access.element_size),
+                                        false,
+                                        zinc_const::bitlength::FIELD,
+                                    )
+                                    .write_to_zinc_vm(state.clone());
+                                    state.borrow_mut().push_instruction(
+                                        Instruction::Mul(zinc_types::Mul),
+                                        Some(location),
+                                    );
+                                }
                             }
+                            state.borrow_mut().push_instruction(
+                                Instruction::Slice(zinc_types::Slice::new(
+                                    access.element_size * access.slice_length,
+                                    access.total_size,
+                                )),
+                                Some(location),
+                            );
                         }
-                        state.borrow_mut().push_instruction(
-                            Instruction::Slice(zinc_types::Slice::new(
-                                access.element_size * access.slice_length,
-                                access.total_size,
-                            )),
-                            Some(location),
-                        );
-                    }
-                    Operator::Slice { access } => {
-                        IntegerConstant::new(
-                            BigInt::from(access.offset),
-                            false,
-                            zinc_const::bitlength::FIELD,
-                        )
-                        .write_to_zinc_vm(state.clone());
-                        state.borrow_mut().push_instruction(
-                            Instruction::Slice(zinc_types::Slice::new(
-                                access.element_size,
-                                access.total_size,
-                            )),
-                            Some(location),
-                        );
-                    }
+                        Operator::Slice { access } => {
+                            IntegerConstant::new(
+                                BigInt::from(access.offset),
+                                false,
+                                zinc_const::bitlength::FIELD,
+                            )
+                            .write_to_zinc_vm(state.clone());
+                            state.borrow_mut().push_instruction(
+                                Instruction::Slice(zinc_types::Slice::new(
+                                    access.element_size,
+                                    access.total_size,
+                                )),
+                                Some(location),
+                            );
+                        }
 
-                    Operator::Call {
-                        type_id,
-                        input_size,
-                    } => Self::call(state.clone(), type_id, input_size, location),
-                    Operator::CallDebug {
-                        format,
-                        argument_types,
-                    } => Self::call_debug(
-                        state.clone(),
-                        format,
-                        argument_types
-                            .into_iter()
-                            .map(|r#type| r#type.into())
-                            .collect(),
-                        location,
-                    ),
-                    Operator::CallRequire { message } => {
-                        Self::call_require(state.clone(), message, location)
+                        Operator::Call {
+                            type_id,
+                            input_size,
+                        } => Self::call(state.clone(), type_id, input_size, location),
+                        Operator::CallDebug {
+                            format,
+                            argument_types,
+                        } => Self::call_debug(
+                            state.clone(),
+                            format,
+                            argument_types
+                                .into_iter()
+                                .map(|r#type| r#type.into())
+                                .collect(),
+                            location,
+                        ),
+                        Operator::CallRequire { message } => {
+                            Self::call_require(state.clone(), message, location)
+                        }
+                        Operator::CallContractFetch { fields } => {
+                            Self::call_contract_fetch(state.clone(), fields, location)
+                        }
+                        Operator::CallLibrary {
+                            identifier,
+                            input_size,
+                            output_size,
+                        } => Self::call_standard_library(
+                            state.clone(),
+                            identifier,
+                            input_size,
+                            output_size,
+                            location,
+                        ),
                     }
-                    Operator::CallContractFetch { fields } => {
-                        Self::call_contract_fetch(state.clone(), fields, location)
-                    }
-                    Operator::CallLibrary {
-                        identifier,
-                        input_size,
-                        output_size,
-                    } => Self::call_standard_library(
-                        state.clone(),
-                        identifier,
-                        input_size,
-                        output_size,
-                        location,
-                    ),
-                },
+                }
             }
         }
     }

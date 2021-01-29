@@ -34,7 +34,6 @@ pub enum Type {
         /// The variant list.
         variants: Vec<(String, BigInt)>,
     },
-
     /// The array type.
     Array(Box<Type>, usize),
     /// The tuple type.
@@ -79,7 +78,6 @@ impl Type {
             Self::Enumeration { bitlength, .. } => {
                 vec![ScalarType::Integer(IntegerType::new(false, bitlength))]
             }
-
             Self::Array(r#type, size) => vec![Self::into_flat_scalar_types(*r#type); size]
                 .into_iter()
                 .flatten()
@@ -125,7 +123,6 @@ impl Type {
             Self::Unit => 0,
             Self::Scalar(_) => 1,
             Self::Enumeration { .. } => 1,
-
             Self::Array(r#type, size) => r#type.size() * *size,
             Self::Tuple(fields) => fields.iter().map(Self::size).sum(),
             Self::Structure(fields) => fields.iter().map(|(_, r#type)| r#type.size()).sum(),

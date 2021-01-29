@@ -19,6 +19,8 @@ pub struct Output {
     pub result: zinc_types::Value,
     /// The contract storage after executing a method.
     pub storages: HashMap<BigInt, zinc_types::Value>,
+    /// The contract storage after executing a method.
+    pub events: HashMap<zksync_types::Address, Vec<zinc_types::ContractEventType>>,
     /// The transfers executed during the method execution.
     pub transfers: Vec<zinc_types::TransactionMsg>,
     /// The contract initializers created during the method execution.
@@ -32,12 +34,14 @@ impl Output {
     pub fn new(
         result: zinc_types::Value,
         storages: HashMap<BigInt, zinc_types::Value>,
+        events: HashMap<zksync_types::Address, Vec<zinc_types::ContractEventType>>,
         transfers: Vec<zinc_types::TransactionMsg>,
         initializers: Vec<Initializer>,
     ) -> Self {
         Self {
             result,
             storages,
+            events,
             transfers,
             initializers,
         }

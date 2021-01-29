@@ -42,7 +42,6 @@ pub enum Value {
         /// The enumeration variant value.
         value: ScalarValue,
     },
-
     /// Represented with JSON array.
     Array(Vec<Value>),
     /// Represented with JSON object.
@@ -63,6 +62,7 @@ impl Value {
             Type::Unit => Self::Unit,
             Type::Scalar(scalar_type) => match scalar_type {
                 ScalarType::Boolean => Self::Scalar(ScalarValue::Boolean(false)),
+                ScalarType::String => Self::Scalar(ScalarValue::String(BigInt::zero())),
                 ScalarType::Integer(inner) => {
                     Self::Scalar(ScalarValue::Integer(BigInt::zero(), inner))
                 }
@@ -116,7 +116,6 @@ impl Value {
                 bitlength,
                 variants,
             } => Self::enumeration_from_json(value, bitlength, variants),
-
             Type::Array(inner, size) => Self::array_from_json(value, *inner, size),
             Type::Tuple(inner) => Self::tuple_from_json(value, inner),
             Type::Structure(fields) => Self::structure_from_json(value, fields),
@@ -141,6 +140,11 @@ impl Value {
                     .cloned()
                     .map(|value| value != BigInt::zero())
                     .map(ScalarValue::Boolean)
+                    .map(Self::Scalar),
+                ScalarType::String => flat_values
+                    .first()
+                    .cloned()
+                    .map(ScalarValue::String)
                     .map(Self::Scalar),
                 ScalarType::Integer(r#type) => flat_values
                     .first()
@@ -224,7 +228,6 @@ impl Value {
             Self::Unit => vec![],
             Self::Scalar(value) => vec![value.to_bigint()],
             Self::Enumeration { name: _, value } => vec![value.to_bigint()],
-
             Self::Array(values) => values
                 .into_iter()
                 .map(Self::into_flat_values)
@@ -266,6 +269,7 @@ impl Value {
                     },
                 ),
                 ScalarValue::Boolean(value) => serde_json::Value::Bool(value),
+                ScalarValue::String(value) => serde_json::Value::String(value.to_string()),
             },
             Self::Enumeration { name, value: _ } => serde_json::Value::String(name),
 
@@ -345,6 +349,17 @@ impl Value {
         })?;
 
         Ok(Self::Scalar(ScalarValue::Boolean(value_bool)))
+    }
+
+    fn string_from_json(value: serde_json::Value) -> anyhow::Result<Self> {
+        let value_string = value.as_str().ok_or_else(|| Error::TypeError {
+            expected: "numeric string: 0b[0-1]+ | 0o[0-7]+ | [0-9]+ | 0x[0-9A-Fa-f]+".into(),
+            found: value.to_string(),
+        })?;
+
+        let bigint = zinc_math::bigint_from_str(value_string).map_err(Error::from)?;
+
+        Ok(Self::Scalar(ScalarValue::String(bigint)))
     }
 
     ///
@@ -447,6 +462,7 @@ impl Value {
     fn scalar_from_json(value: serde_json::Value, scalar_type: ScalarType) -> anyhow::Result<Self> {
         match scalar_type {
             ScalarType::Boolean => Self::boolean_from_json(value),
+            ScalarType::String => Self::string_from_json(value),
             ScalarType::Integer(inner) => Self::integer_from_json(value, inner),
             ScalarType::Field => Self::field_from_json(value),
         }

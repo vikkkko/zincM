@@ -90,7 +90,7 @@ impl Scope {
         let mut items = HashMap::with_capacity(Self::ITEMS_INITIAL_CAPACITY + dependencies.len());
         for (name, scope) in dependencies.into_iter() {
             let module = ModuleItem::new_defined(None, name.clone(), scope, false);
-
+            log::debug!("new_module_name:{:?}", name);
             items.insert(name, Item::Module(module).wrap());
         }
 
@@ -214,6 +214,7 @@ impl Scope {
     /// Inserts an item, does not check if the item has been already declared.
     ///
     pub fn insert_item(scope: Rc<RefCell<Scope>>, name: String, item: Rc<RefCell<Item>>) {
+        log::debug!("insert_item----name:{}--", name);
         RefCell::borrow(&scope)
             .items
             .borrow_mut()
@@ -228,6 +229,7 @@ impl Scope {
         identifier: Identifier,
         item: Rc<RefCell<Item>>,
     ) -> Result<(), Error> {
+        log::debug!("define_item");
         if let Ok(item) = RefCell::borrow(&scope).resolve_item(&identifier, true) {
             return Err(Error::ScopeItemRedeclared {
                 location: identifier.location,
@@ -256,6 +258,8 @@ impl Scope {
         is_mutable: bool,
         r#type: SemanticType,
     ) -> Result<(), Error> {
+        log::debug!("define_variable");
+
         if let Ok(item) =
             RefCell::borrow(&scope).resolve_item(&identifier, !identifier.is_self_lowercase())
         {
@@ -294,6 +298,7 @@ impl Scope {
         is_implicit: bool,
         is_immutable: bool,
     ) -> Result<(), Error> {
+        log::debug!("define_field");
         if let Ok(item) = RefCell::borrow(&scope).resolve_item(&identifier, false) {
             return Err(Error::ScopeItemRedeclared {
                 location: identifier.location,
@@ -329,6 +334,7 @@ impl Scope {
         scope: Rc<RefCell<Scope>>,
         statement: ConstStatement,
     ) -> Result<(), Error> {
+        log::debug!("declare_constant");
         if let Ok(item) = RefCell::borrow(&scope).resolve_item(&statement.identifier, true) {
             return Err(Error::ScopeItemRedeclared {
                 location: statement.location,
@@ -360,6 +366,7 @@ impl Scope {
         identifier: Identifier,
         constant: Constant,
     ) -> Result<(), Error> {
+        log::debug!("define_constant");
         if let Ok(item) = RefCell::borrow(&scope).resolve_item(&identifier, true) {
             return Err(Error::ScopeItemRedeclared {
                 location: identifier.location,
@@ -387,6 +394,7 @@ impl Scope {
         identifier: Identifier,
         constant: Constant,
     ) -> Result<(), Error> {
+        log::debug!("define_variant");
         if let Ok(item) = RefCell::borrow(&scope).resolve_item(&identifier, false) {
             return Err(Error::ScopeItemRedeclared {
                 location: identifier.location,
@@ -418,6 +426,7 @@ impl Scope {
         scope: Rc<RefCell<Scope>>,
         statement: TypeStatementVariant,
     ) -> Result<(), Error> {
+        log::debug!("declare_type");
         if let Ok(item) = RefCell::borrow(&scope).resolve_item(&statement.identifier(), true) {
             return Err(Error::ScopeItemRedeclared {
                 location: statement.location(),
@@ -427,6 +436,7 @@ impl Scope {
         }
 
         let name = statement.identifier().name.clone();
+        log::debug!("declare_type_name:{}", statement.identifier().name.clone());
         let item = Item::Type(TypeItem::new_declared(
             Some(statement.location()),
             statement,
@@ -450,6 +460,7 @@ impl Scope {
         r#type: SemanticType,
         intermediate: Option<GeneratorStatement>,
     ) -> Result<(), Error> {
+        log::debug!("define_type:{:?}", identifier);
         if let Ok(item) = RefCell::borrow(&scope).resolve_item(&identifier, true) {
             return Err(Error::ScopeItemRedeclared {
                 location: r#type.location().unwrap_or(identifier.location),
@@ -465,6 +476,7 @@ impl Scope {
             false,
             intermediate,
         ));
+        log::debug!("name:{:?}", name);
 
         RefCell::borrow(&scope)
             .items
@@ -487,6 +499,7 @@ impl Scope {
                 reference: location,
             });
         }
+        log::debug!("statement:{:?}", statement);
 
         Scope::declare_type(scope, TypeStatementVariant::Contract(statement))
     }
@@ -502,6 +515,7 @@ impl Scope {
         scope_crate: Rc<RefCell<Scope>>,
         dependencies: HashMap<String, Rc<RefCell<Scope>>>,
     ) -> Result<(), Error> {
+        log::debug!("declare_module");
         if let Ok(item) = RefCell::borrow(&scope).resolve_item(&identifier, true) {
             return Err(Error::ScopeItemRedeclared {
                 location: identifier.location,
@@ -621,6 +635,7 @@ impl Scope {
             Some(item) => Ok(item.to_owned()),
             None => match self.parent {
                 Some(ref parent) if recursive => {
+                    log::debug!("None");
                     RefCell::borrow(&parent).resolve_item(identifier, recursive)
                 }
                 Some(_) | None => Err(Error::ScopeItemUndeclared {
@@ -732,7 +747,7 @@ impl Scope {
     /// Is used for testing purposes.
     ///
     pub fn show(&self, level: usize) {
-        println!(
+        log::debug!(
             "{}==== {:?} `{}` ====",
             "    ".repeat(level),
             self.r#type,
@@ -740,7 +755,7 @@ impl Scope {
         );
 
         for (name, item) in self.items.borrow().iter() {
-            println!(
+            log::debug!(
                 "{}{}: {}",
                 "    ".repeat(level),
                 name,

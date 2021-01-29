@@ -5,6 +5,7 @@
 #[cfg(test)]
 mod tests;
 
+pub mod contract_event;
 pub mod contract_fetch;
 pub mod contract_transfer;
 pub mod debug;
@@ -18,6 +19,7 @@ use zinc_types::LibraryFunctionIdentifier;
 
 use crate::semantic::element::r#type::contract::Contract as ContractType;
 
+use self::contract_event::Function as ContractEventFunction;
 use self::contract_fetch::Function as ContractFetchFunction;
 use self::contract_transfer::Function as ContractTransferFunction;
 use self::debug::Function as DebugFunction;
@@ -52,6 +54,8 @@ pub enum Function {
     ContractFetch(ContractFetchFunction),
     /// The `<Contract>::transfer(...)` function. See the inner element description.
     ContractTransfer(ContractTransferFunction),
+    /// The `<Contract>::event(...)` function. See the inner element description.
+    ContractEvent(ContractEventFunction),
     /// The standard library function. See the inner element description.
     StandardLibrary(StandardLibraryFunction),
 }
@@ -139,6 +143,10 @@ impl Function {
                 Self::ContractTransfer(ContractTransferFunction::default())
             }
 
+            LibraryFunctionIdentifier::ContractEvent => {
+                Self::ContractEvent(ContractEventFunction::default())
+            }
+
             LibraryFunctionIdentifier::CollectionsMTreeMapGet => {
                 Self::StandardLibrary(StandardLibraryFunction::CollectionsMTreeMapGet(
                     StdCollectionsMTreeMapGetFunction::default(),
@@ -178,6 +186,7 @@ impl Function {
             Self::Debug(_) => false,
             Self::ContractFetch(_) => false,
             Self::ContractTransfer(_) => true,
+            Self::ContractEvent(_) => true,
             Self::StandardLibrary(inner) => inner.is_mutable(),
         }
     }
@@ -191,6 +200,7 @@ impl Function {
             Self::Debug(inner) => inner.identifier,
             Self::ContractFetch(inner) => inner.identifier,
             Self::ContractTransfer(inner) => inner.identifier,
+            Self::ContractEvent(inner) => inner.identifier,
             Self::StandardLibrary(inner) => inner.identifier(),
         }
     }
@@ -204,6 +214,7 @@ impl Function {
             Self::Debug(inner) => inner.location = Some(location),
             Self::ContractFetch(inner) => inner.location = Some(location),
             Self::ContractTransfer(inner) => inner.location = Some(location),
+            Self::ContractEvent(inner) => inner.location = Some(location),
             Self::StandardLibrary(inner) => inner.set_location(location),
         }
     }
@@ -217,6 +228,7 @@ impl Function {
             Self::Debug(inner) => inner.location,
             Self::ContractFetch(inner) => inner.location,
             Self::ContractTransfer(inner) => inner.location,
+            Self::ContractEvent(inner) => inner.location,
             Self::StandardLibrary(inner) => inner.location(),
         }
     }
@@ -229,6 +241,7 @@ impl fmt::Display for Function {
             Self::Debug(inner) => write!(f, "{}", inner),
             Self::ContractFetch(inner) => write!(f, "{}", inner),
             Self::ContractTransfer(inner) => write!(f, "{}", inner),
+            Self::ContractEvent(inner) => write!(f, "{}", inner),
             Self::StandardLibrary(inner) => write!(f, "std::{}", inner),
         }
     }

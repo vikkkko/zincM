@@ -39,6 +39,9 @@ pub enum LibraryFunctionIdentifier {
     /// The `<Contract>::transfer` function identifier.
     ContractTransfer,
 
+    /// The `<Contract>::event` function identifier.format
+    ContractEvent,
+
     /// The `std::collections::MTreeMap::get` function identifier.
     CollectionsMTreeMapGet,
     /// The `std::collections::MTreeMap::contains` function identifier.

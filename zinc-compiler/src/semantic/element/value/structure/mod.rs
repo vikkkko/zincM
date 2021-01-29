@@ -149,6 +149,7 @@ impl Structure {
             }
             offset += r#type.size();
         }
+        log::debug!("here4");
 
         Err(Error::StructureFieldDoesNotExist {
             location: expected.location,

@@ -184,6 +184,7 @@ impl Function {
         let scope = Scope::new_child(self.identifier, ScopeType::Function, scope);
 
         for (name, constant) in arguments.into_iter() {
+            log::debug!("call_insert_item:{}", name);
             Scope::insert_item(
                 scope.clone(),
                 name,

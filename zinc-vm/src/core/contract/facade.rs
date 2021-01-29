@@ -118,12 +118,16 @@ impl Facade {
             .map(|(address, storage)| (address, storage.into_build()))
             .collect();
 
+        let events = state.execution_state.events;
+        log::debug!("events:{:?}", events);
+
         let transfers = state.execution_state.transfers;
         let initializers = state.execution_state.initializers;
 
         Ok(ContractOutput::new(
             output_value,
             storages,
+            events,
             transfers,
             initializers,
         ))

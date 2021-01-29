@@ -38,7 +38,9 @@ impl ITypeExpectation for zinc_types::ScalarType {
 
     fn assert_signed(&self, is_signed: bool) -> Result<(), Error> {
         let is_signed = match self {
-            zinc_types::ScalarType::Field | zinc_types::ScalarType::Boolean => false,
+            zinc_types::ScalarType::Field
+            | zinc_types::ScalarType::Boolean
+            | zinc_types::ScalarType::String => false,
             zinc_types::ScalarType::Integer(int_type) => int_type.is_signed == is_signed,
         };
 
@@ -61,6 +63,7 @@ impl ITypeExpectation for zinc_types::ScalarType {
             zinc_types::ScalarType::Boolean => 1,
             zinc_types::ScalarType::Integer(inner) => inner.bitlength,
             zinc_types::ScalarType::Field => E::Fr::NUM_BITS as usize,
+            zinc_types::ScalarType::String => E::Fr::NUM_BITS as usize,
         }
     }
 }

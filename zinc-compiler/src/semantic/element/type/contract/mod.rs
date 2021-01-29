@@ -15,6 +15,7 @@ use zinc_lexical::Keyword;
 use zinc_lexical::Location;
 use zinc_syntax::Identifier;
 
+use crate::semantic::element::r#type::function::intrinsic::contract_event::Function as ContractEventFunction;
 use crate::semantic::element::r#type::function::intrinsic::contract_fetch::Function as ContractFetchFunction;
 use crate::semantic::element::r#type::function::intrinsic::contract_transfer::Function as ContractTransferFunction;
 use crate::semantic::element::r#type::function::intrinsic::Function as IntrinsicFunction;
@@ -85,7 +86,7 @@ impl Contract {
             true,
             true,
         )?;
-
+        log::debug!("fields:{:?}", fields);
         let contract = Self {
             location,
             identifier,
@@ -103,11 +104,21 @@ impl Contract {
             ))),
             None,
         )?;
+
         Scope::define_type(
             scope.clone(),
             Identifier::new(location, ContractTransferFunction::IDENTIFIER.to_owned()),
             Type::Function(Function::Intrinsic(IntrinsicFunction::ContractTransfer(
                 ContractTransferFunction::default(),
+            ))),
+            None,
+        )?;
+
+        Scope::define_type(
+            scope.clone(),
+            Identifier::new(location, ContractEventFunction::IDENTIFIER.to_owned()),
+            Type::Function(Function::Intrinsic(IntrinsicFunction::ContractEvent(
+                ContractEventFunction::default(),
             ))),
             None,
         )?;

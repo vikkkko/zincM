@@ -4,6 +4,7 @@
 
 pub mod boolean;
 pub mod integer;
+pub mod string;
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -14,6 +15,7 @@ use crate::semantic::element::constant::Constant as SemanticConstant;
 
 use self::boolean::Boolean;
 use self::integer::Integer;
+use self::string::String;
 
 ///
 /// The constant operand, which is pushed directly into the bytecode.
@@ -24,6 +26,7 @@ pub enum Constant {
     Boolean(Boolean),
     /// The integer constant.
     Integer(Integer),
+    String(String),
     /// The constant group, which is created from an array, tuple, structure, etc.
     Group(Vec<Self>),
 }
@@ -38,6 +41,7 @@ impl Constant {
         match constant {
             SemanticConstant::Boolean(inner) => Some(Self::Boolean(Boolean::from_semantic(inner))),
             SemanticConstant::Integer(inner) => Some(Self::Integer(Integer::from_semantic(inner))),
+            SemanticConstant::String(inner) => Some(Self::String(String::from_semantic(inner))),
             SemanticConstant::Array(inner) => {
                 let group: Vec<Self> = inner
                     .values
@@ -84,6 +88,7 @@ impl IBytecodeWritable for Constant {
         match self {
             Self::Boolean(inner) => inner.write_to_zinc_vm(state),
             Self::Integer(inner) => inner.write_to_zinc_vm(state),
+            Self::String(inner) => inner.write_to_zinc_vm(state),
             Self::Group(inner) => {
                 for constant in inner.into_iter() {
                     constant.write_to_zinc_vm(state.clone());

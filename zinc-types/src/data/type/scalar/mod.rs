@@ -19,6 +19,7 @@ use self::integer::Type as IntegerType;
 pub enum Type {
     /// The `bool` scalar type.
     Boolean,
+    String,
     /// The `u{n}` or `i{n}` scalar type.
     Integer(IntegerType),
     /// The `field` scalar type.
@@ -57,6 +58,7 @@ impl fmt::Display for Type {
         match self {
             Self::Boolean => write!(f, "bool"),
             Self::Integer(inner) => write!(f, "{}", inner),
+            Self::String => write!(f, "{}", "string"),
             Self::Field => write!(f, "field"),
         }
     }

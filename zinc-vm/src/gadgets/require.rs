@@ -25,7 +25,7 @@ where
     let inverse_value = element
         .get_value()
         .map(|fr| fr.inverse().unwrap_or_else(E::Fr::zero));
-
+    log::debug!("inverse_value :{:?}", inverse_value.clone());
     let inverse_variable = cs
         .alloc(|| "inverse", || inverse_value.grab())
         .map_err(Error::SynthesisError)?;

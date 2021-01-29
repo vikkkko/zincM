@@ -84,6 +84,7 @@ impl Analyzer {
         Scope::insert_item(scope.clone(), Keyword::SelfUppercase.to_string(), item);
 
         for hoisted_statement in statement.statements.into_iter() {
+            log::debug!("hoisted_statement:{:?}", hoisted_statement);
             match hoisted_statement {
                 ImplementationLocalStatement::Const(statement) => {
                     Scope::declare_constant(scope.clone(), statement)?;

@@ -12,6 +12,7 @@ impl<VM: IVirtualMachine> IExecutable<VM> for Store {
     fn execute(self, vm: &mut VM) -> Result<(), Error> {
         for i in 0..self.size {
             let value = vm.pop()?;
+            log::debug!("store:{:?}---{:?}", self.address + self.size - i - 1, value);
             vm.store(self.address + self.size - i - 1, value)?;
         }
 

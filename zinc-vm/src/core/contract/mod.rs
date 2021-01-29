@@ -129,7 +129,7 @@ where
             let instruction =
                 contract.instructions[self.execution_state.instruction_counter].clone();
 
-            log::trace!(
+            log::debug!(
                 "{}:{} > {}",
                 step,
                 self.execution_state.instruction_counter,
@@ -291,6 +291,12 @@ where
 
     fn load(&mut self, address: usize) -> Result<Cell<E>, Error> {
         let frame_start = self.top_frame()?.stack_frame_start;
+        log::debug!(
+            "self.execution_state.data_stack:{:?}",
+            self.execution_state.data_stack
+        );
+        log::debug!("frame_start:{:?}", frame_start);
+        log::debug!("address:{:?}", address);
         self.execution_state.data_stack.get(frame_start + address)
     }
 
@@ -663,7 +669,7 @@ where
     fn call_native<F: INativeCallable<E, S>>(&mut self, function: F) -> Result<(), Error> {
         let state = &mut self.execution_state;
         let cs = &mut self.counter.cs;
-
+        log::debug!("contract-call_native");
         function.call(
             cs.namespace(|| "native function"),
             state,

@@ -341,6 +341,7 @@ where
 
         for i in 0..inputs_count {
             let arg = self.pop()?;
+            log::debug!("store:{:?}---{:?}", inputs_count - i - 1, arg);
             self.store(inputs_count - i - 1, arg)?;
         }
 

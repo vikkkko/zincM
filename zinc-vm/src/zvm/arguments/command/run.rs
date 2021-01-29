@@ -166,7 +166,9 @@ impl IExecutable for Command {
                             zinc_types::Value::Contract(fields) => {
                                 let mut storage_values = Vec::with_capacity(fields.len());
                                 for field in fields.into_iter() {
-                                    storage_values.push(field.value.into_json());
+                                    let a = field.value.into_json();
+                                    log::debug!("field.value.into_json():{:?}", a);
+                                    storage_values.push(a);
                                 }
                                 storages.insert(
                                     format!(

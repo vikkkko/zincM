@@ -57,6 +57,7 @@ impl Constant {
     /// Creates a defined constant, which is ready to be used from anywhere.
     ///
     pub fn new_defined(location: Location, inner: ConstantElement) -> Self {
+        log::debug!("inner.to_string():{}", inner.to_string());
         let item_id = ITEM_INDEX.next(inner.to_string());
 
         Self {

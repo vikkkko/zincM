@@ -287,6 +287,8 @@ impl Place {
 
         match self.r#type {
             Type::Structure(ref structure) => {
+                log::debug!("here1");
+
                 for (index, (field_name, field_type)) in structure.fields.iter().enumerate() {
                     let element_size = field_type.size();
 
@@ -313,11 +315,16 @@ impl Place {
                 })
             }
             Type::Contract(ref contract) => {
+                log::debug!("here2");
+
+                log::debug!("&identifier:{:?}", &identifier);
                 let item = contract.scope.borrow().resolve_item(&identifier, false);
+                log::debug!("item:{:?}", item);
 
                 if let Ok(item) = item {
                     if let ScopeItem::Field(ref field) = *item.borrow() {
                         let element_size = field.r#type.size();
+                        log::debug!("element_size:{:?}", element_size);
 
                         let access = DotAccessVariant::ContractField(ContractFieldAccess::new(
                             identifier.name,
@@ -335,6 +342,7 @@ impl Place {
                             self.is_mutable = false;
                         }
                         self.memory_type = MemoryType::ContractStorage { index: field.index };
+                        log::debug!("memory_type;{:?}", self.memory_type);
 
                         return Ok((self, access));
                     }

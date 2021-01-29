@@ -2,11 +2,10 @@
 //! The Zargo package manager `call` subcommand.
 //!
 
+use colored::Colorize;
 use std::convert::TryFrom;
 use std::path::PathBuf;
 use std::str::FromStr;
-
-use colored::Colorize;
 use structopt::StructOpt;
 
 use zksync::web3::types::H256;
@@ -196,23 +195,24 @@ impl Command {
         let msg = zinc_types::TransactionMsg::try_from(&msg).map_err(TransactionError::Parsing)?;
         let msg1 =
             zinc_types::TransactionMsg::try_from(&msg1).map_err(TransactionError::Parsing)?;
-        let transaction = crate::transaction::try_into_zksync(msg.clone(), &wallet, None,0).await?;
+        // let transaction = crate::transaction::try_into_zksync(msg.clone(), &wallet, None,0).await?;
 
         let mut transactions_call: Vec<zinc_types::Transaction> = Vec::new();
-        let mut transactions: Vec<zinc_types::Transaction> = Vec::new();
+        // let mut transactions: Vec<zinc_types::Transaction> = Vec::new();
 
-        transactions.push(transaction);
-        if msg1.sender != zksync_types::Address::default() {
-            let transaction = crate::transaction::try_into_zksync(msg1.clone(), &wallet, None,1).await?;
-            transactions.push(transaction);
-        }
-        let response = http_client
-            .fee(
-                zinc_types::FeeRequestQuery::new(address, method.clone()),
-                zinc_types::FeeRequestBody::new(arguments.clone(), transactions),
-            )
-            .await?;
-        let contract_fee = response.fee;
+        // transactions.push(transaction);
+        // if msg1.sender != zksync_types::Address::default() {
+        //     let transaction = crate::transaction::try_into_zksync(msg1.clone(), &wallet, None,1).await?;
+        //     transactions.push(transaction);
+        // }
+        // let response = http_client
+        //     .fee(
+        //         zinc_types::FeeRequestQuery::new(address, method.clone()),
+        //         zinc_types::FeeRequestBody::new(arguments.clone(), transactions),
+        //     )
+        //     .await?;
+        // let contract_fee = response.fee;
+        let contract_fee = num_old::BigUint::default();
         println!("contract_fee000000:{}", contract_fee.to_string());
         let transaction = crate::transaction::try_into_zksync(
             msg.clone(),
@@ -224,20 +224,21 @@ impl Command {
         transactions_call.push(transaction);
 
         if msg1.sender != zksync_types::Address::default() {
-            let mut transactions: Vec<zinc_types::Transaction> = Vec::new();
-            let transaction =
-                crate::transaction::try_into_zksync(msg.clone(), &wallet, None,0).await?;
-            let transaction1 =
-                crate::transaction::try_into_zksync(msg1.clone(), &wallet, None,1).await?;
-            transactions.push(transaction1);
-            transactions.push(transaction);
-            let response = http_client
-                .fee(
-                    zinc_types::FeeRequestQuery::new(address, method.clone()),
-                    zinc_types::FeeRequestBody::new(arguments.clone(), transactions),
-                )
-                .await?;
-            let contract_fee = response.fee;
+            // let mut transactions: Vec<zinc_types::Transaction> = Vec::new();
+            // let transaction =
+            //     crate::transaction::try_into_zksync(msg.clone(), &wallet, None,0).await?;
+            // let transaction1 =
+            //     crate::transaction::try_into_zksync(msg1.clone(), &wallet, None,1).await?;
+            // transactions.push(transaction1);
+            // transactions.push(transaction);
+            // let response = http_client
+            //     .fee(
+            //         zinc_types::FeeRequestQuery::new(address, method.clone()),
+            //         zinc_types::FeeRequestBody::new(arguments.clone(), transactions),
+            //     )
+            //     .await?;
+            // let contract_fee = response.fee;
+            let contract_fee = num_old::BigUint::default();
             println!("contract_fee11111:{}", contract_fee.to_string());
             let transaction = crate::transaction::try_into_zksync(
                 msg1,

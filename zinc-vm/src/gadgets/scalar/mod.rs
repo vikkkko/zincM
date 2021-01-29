@@ -107,6 +107,13 @@ impl<E: IEngine> Scalar<E> {
         }
     }
 
+    pub fn to_string(&self) -> Self {
+        Self {
+            variant: self.variant.clone(),
+            scalar_type: zinc_types::ScalarType::String,
+        }
+    }
+
     pub fn to_type_unchecked(&self, scalar_type: zinc_types::ScalarType) -> Self {
         Self {
             variant: self.variant.clone(),
@@ -247,6 +254,10 @@ impl<E: IEngine> Scalar<E> {
             zinc_types::ScalarType::Field => {
                 // Always safe to cast into field
                 Ok(scalar.to_field())
+            }
+            zinc_types::ScalarType::String => {
+                // Always safe to cast into field
+                Ok(scalar.to_string())
             }
         }
     }

@@ -261,6 +261,7 @@ where
 
         for i in 0..inputs_count {
             let arg = self.pop()?;
+            log::debug!("store:{:?}---{:?}", inputs_count - i - 1, arg);
             self.store(inputs_count - i - 1, arg)?;
         }
 
@@ -390,7 +391,7 @@ where
     ) -> Result<(), Error> {
         let state = &mut self.execution_state;
         let cs = &mut self.counter.cs;
-
+        log::debug!("library-call_native");
         function.call(cs.namespace(|| "native function"), state, None)
     }
 

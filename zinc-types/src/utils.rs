@@ -39,6 +39,10 @@ pub fn address_from_slice(slice: &[u8]) -> Address {
     array.into()
 }
 
+pub fn string_from_slice(slice: &[u8]) -> std::string::String {
+    std::string::String::from_utf8(slice.iter().cloned().collect()).expect("Found invalid UTF-8")
+}
+
 ///
 /// Converts a big-endian byte slice into an ETH private key.
 ///

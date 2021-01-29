@@ -22,6 +22,7 @@ impl Unit {
     /// A shortcut constructor.
     ///
     pub fn new(location: Location) -> Self {
+        log::debug!("Unit");
         Self { location }
     }
 }

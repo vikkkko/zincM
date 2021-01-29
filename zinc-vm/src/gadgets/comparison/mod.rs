@@ -60,7 +60,9 @@ where
         let scalar_type = zinc_types::ScalarType::expect_same(left.get_type(), right.get_type())?;
 
         match scalar_type {
-            zinc_types::ScalarType::Field => less_than_field(cs, left, right),
+            zinc_types::ScalarType::Field | zinc_types::ScalarType::String => {
+                less_than_field(cs, left, right)
+            }
             zinc_types::ScalarType::Integer(int_type) => {
                 let boolean = less_than_integer(
                     cs.namespace(|| "less_than_integer"),

@@ -291,6 +291,44 @@ impl Client {
         })
     }
 
+    pub async fn insert_events(
+        &self,
+        input: Vec<model::event::insert::Input>,
+        mut transaction: Option<&mut Transaction<'static, Postgres>>,
+    ) -> Result<()> {
+        const STATEMENT: &str = r#"
+        INSERT INTO zandbox.events (
+            account_id,
+            index,
+            sender,
+            name,
+            value
+        ) VALUES (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5
+        );
+        "#;
+
+        for event in input.into_iter() {
+            let query = sqlx::query(STATEMENT)
+                .bind(event.account_id)
+                .bind(event.index)
+                .bind(<[u8; zinc_const::size::ETH_ADDRESS]>::from(event.sender).to_vec())
+                .bind(event.name)
+                .bind(event.value);
+
+            match transaction {
+                Some(ref mut transaction) => query.execute(transaction.deref_mut()).await?,
+                None => query.execute(&self.pool).await?,
+            };
+        }
+
+        Ok(())
+    }
+
     ///
     /// Inserts contract storage fields into the `fields` table.
     ///

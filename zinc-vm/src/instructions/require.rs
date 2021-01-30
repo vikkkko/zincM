@@ -13,18 +13,21 @@ use crate::instructions::IExecutable;
 
 impl<VM: IVirtualMachine> IExecutable<VM> for Require {
     fn execute(self, vm: &mut VM) -> Result<(), Error> {
+        let msg = vm.pop()?.try_into_value()?; //drop
         let value = vm.pop()?.try_into_value()?;
         let condition = vm.condition_top()?;
-
+        log::debug!("value:{:?}---condition:{:?}",value,condition);
         let cs = vm.constraint_system();
 
         let not_c = gadgets::logical::not::not(cs.namespace(|| "not"), &condition)?;
+        log::debug!("not_c:{:?}",not_c);
         let condition = gadgets::logical::or::or(cs.namespace(|| "or"), &value, &not_c)?;
-
+        log::debug!("condition:{:?}",condition);
         let message = match &self.message {
             Some(message) => Some(message.as_str()),
             None => None,
         };
+        log::debug!("here4:{:?}",message);
         gadgets::require::require(cs, condition, message)
     }
 }

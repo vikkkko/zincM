@@ -86,7 +86,7 @@ impl Contract {
             true,
             true,
         )?;
-        log::debug!("fields:{:?}", fields);
+        //log::debug!("fields:{:?}", fields);
         let contract = Self {
             location,
             identifier,

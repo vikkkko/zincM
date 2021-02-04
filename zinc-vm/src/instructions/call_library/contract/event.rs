@@ -79,20 +79,20 @@ impl<E: IEngine, S: IMerkleTree<E>> INativeCallable<E, S> for Event {
                 .as_slice(),
         );
 
-        log::debug!("1contract:{:?}----name:{:?}", contract, name);
-        let event = zinc_types::ContractEventType::new(name, zinc_types::Value::Array(args));
-        if state.events.contains_key(&contract) {
-            state.events.get_mut(&contract).unwrap().push(event);
-        } else {
-            state.events.insert(contract, vec![event]);
-        }
-
         if state
             .conditions_stack
             .iter()
             .map(|value| value.get_value().expect(zinc_const::panic::DATA_CONVERSION))
             .all(|value| !value.is_zero())
-        {}
+        {
+            log::debug!("1contract:{:?}----name:{:?}", contract, name);
+            let event = zinc_types::ContractEventType::new(name, zinc_types::Value::Array(args));
+            if state.events.contains_key(&contract) {
+                state.events.get_mut(&contract).unwrap().push(event);
+            } else {
+                state.events.insert(contract, vec![event]);
+            }
+        }
 
         Ok(())
     }
